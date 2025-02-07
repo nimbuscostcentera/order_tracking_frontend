@@ -1,0 +1,54 @@
+.table-wrapper {
+  max-height: 360px !important;
+  padding: 0 20px;
+  overflow-y: auto !important;
+  display: block;
+}
+tbody tr td{
+  color: #252525!important;
+  font-size: smaller;
+  text-align: center;
+}
+thead tr th{
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color:#2f2d66!important;
+  color: rgb(255, 255, 255) !important;
+}
+
+thead tr th:first-child{
+  position: sticky;
+  left: 0;
+  color: white!important;
+  background-color:#2f2d66!important; /* Set background to avoid overlap */
+  z-index: 3; /* Ensure it stays above the other columns */
+  text-align: center;
+  font-size: "10px" !important;
+  padding-bottom: 5px !important;
+}
+tbody tr td:first-child{
+  position: sticky;
+  left: 0;
+  color: white!important;
+  background-color:#2f2d66!important; /* Set background to avoid overlap */
+  z-index: 2; /* Ensure it stays above the other columns */
+  text-align: center;
+  font-size: "10px" !important;
+  padding-bottom: 5px !important;
+  border-bottom: "grey"!important;
+  border-bottom-color: gray;
+}
+
+.bi-pencil-square {
+  color: rgb(2, 2, 2);
+  font-size: larger;
+  outline: none;
+}
+
+.bi-pencil-square:hover {
+  color: rgb(0, 102, 255);
+}
