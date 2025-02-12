@@ -37,13 +37,6 @@ function CustomerDetils({isDisable,setIsDisable}) {
         value: `${item?.id}`,
       }));
     }, [CityList]);
-
-    const StateListOption = useMemo(() => {
-      return StateList?.map((item) => ({
-        label: `${item?.StateCode}:${item?.DESCRIPTION}`,
-        value: `${item?.id}`,
-      }));
-    }, [isStateLoading]);
   
   const [params, SetParams] = useState({
     ActionID: null,
@@ -54,11 +47,8 @@ function CustomerDetils({isDisable,setIsDisable}) {
     CUSTCode: null,
     NAME: null,
     PHONE: null,
-    ADDRESS1: null,
-    ADDRESS2: null,
     ADDRESS3: null,
     City: null,
-    State: null,
   });
   const {
     CustomerList,
@@ -85,17 +75,7 @@ function CustomerDetils({isDisable,setIsDisable}) {
     },
     { headername: "Customer Name", fieldname: "NAME", type: "String", max: 50 },
     { headername: "Phone No.", fieldname: "PHONE", type: "number", max: 10 },
-    { headername: "Address1", fieldname: "ADDRESS1", type: "String", max: 100 },
-    { headername: "Address2", fieldname: "ADDRESS2", type: "String", max: 100 },
-    { headername: "Address3", fieldname: "ADDRESS3", type: "String", max: 100 },
-    {
-      headername: "State Code",
-      fieldname: "StateCode",
-      selectionname: "State",
-      type: "String",
-      isSelection: true,
-      options: StateListOption,
-    },
+    { headername: "Email", fieldname: "ADDRESS3", type: "String", max: 100 },
     {
       headername: "City Name",
       fieldname: "cityname",
@@ -114,11 +94,8 @@ function CustomerDetils({isDisable,setIsDisable}) {
       CUSTCode: filteredData[tabindex]?.CUSTCode,
       NAME: filteredData[tabindex]?.NAME,
       PHONE: filteredData[tabindex]?.PHONE,
-      ADDRESS1: filteredData[tabindex]?.ADDRESS1,
-      ADDRESS2: filteredData[tabindex]?.ADDRESS2,
       ADDRESS3: filteredData[tabindex]?.ADDRESS3,
       City: filteredData[tabindex]?.City,
-      State: filteredData[tabindex]?.State,
     });
   };
 // console.log(editedData,"Edit data");
@@ -185,11 +162,9 @@ function CustomerDetils({isDisable,setIsDisable}) {
           CUSTCode: null,
           NAME: null,
           PHONE: null,
-          ADDRESS1: null,
-          ADDRESS2: null,
           ADDRESS3: null,
           City: null,
-          State: null,
+  
         });
 
         SetParams({ ActionID: null, IsAction: null });
@@ -205,7 +180,7 @@ function CustomerDetils({isDisable,setIsDisable}) {
     }, [isCustEditLoading, CustEditSuccess, CustEditError]);
  
   return (
-    <div style={{ width: "auto", overflow: "auto",height:"50vh" }}>
+    <div id="table-box" style={{ height:"50vh" }}>
       {!isCustLoading &&
       Array.isArray(CustomerList) &&
       CustomerList.length > 0 ? (

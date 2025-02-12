@@ -62,7 +62,7 @@ const GetReportPdf = (data) => {
   };
 
   // Draw header row
-  const headers = [ "Product Code","Total Weight"];
+  const headers = [ "Product Code","Total pending Weight"];
   let currentX = leftMargin;
   let maxHeaderHeight = 0;
   headers.forEach((header, i) => {

@@ -20,7 +20,7 @@ function CustomerDashboard() {
           style={{ paddingLeft: "15px", margin: "0px" }}
         >
           <h5>Customer Order Dashboard</h5>
-          <hr style={{ marginTop: "2px" }} />
+          <hr className="mt-1 mb-2"/>
         </Col>
         <Col
           xs={12}

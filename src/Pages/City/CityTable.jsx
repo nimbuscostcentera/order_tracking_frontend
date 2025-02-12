@@ -126,7 +126,7 @@ function CityTable({isDisable,setIsDisable}) {
    
 
   return (
-    <div style={{ width: "auto", overflow: "auto", height:"55vh"}}>
+    <div id="table-box" style={{ height: "50vh" }}>
       <Table
         tab={filteredData || []}
         isAction={params?.IsAction}

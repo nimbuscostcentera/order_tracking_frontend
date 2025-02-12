@@ -212,12 +212,10 @@ function PartyDetils({isDisable,setIsDisable}) {
     }, [isPartyEditLoading, PartyEditSuccess, PartyEditError]);
  
   return (
-    <div style={{ width: "auto", overflow: "auto",height:"50vh" }}>
-      {!loading &&
-      Array.isArray(PartyList) &&
-      PartyList.length > 0 ? (
+    <div id="table-box" style={{ height: "50vh" }}>
+      {!loading && Array.isArray(PartyList) && PartyList.length > 0 ? (
         <Table
-          tab={filteredData||[]}
+          tab={filteredData || []}
           isAction={params?.IsAction}
           ActionFunc={ActionFunc}
           ActionId={params?.ActionID}

@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Table from "../../../Component/Table";
+import "./Customer.css";
 
 import generateChalanPDF from "../CustOrderPrint";
 import checkOrder from "../../../GlobalFunctions/Ordercheck";
@@ -26,12 +27,12 @@ function OrderTable({ setIsDisable }) {
   const currentDate = moment().format("YYYY-MM-DD");
   const [filteredData, setFilteredData] = useState([]);
   const [trigger, setTrigger] = useState(0); // A trigger state
-  const[iconVis,SetIconVis]=useState(true)
+  const [iconVis, SetIconVis] = useState(true);
   const [params, setParams] = useState({
     ActionID: -1,
     IsAction: false,
     printId: -1,
-    isIconVis:true
+    isIconVis: true,
   });
   const [editedData, setEditedData] = useState({
     Id_Order: null,
@@ -95,6 +96,22 @@ function OrderTable({ setIsDisable }) {
 
   const Col = [
     {
+      headername: "Order No",
+      fieldname: "Orderno",
+      type: "String",
+      isNotEditable: true,
+      width: "100px",
+    },
+    {
+      headername: "Customer RefNo.",
+      fieldname: "SampleRcpVou",
+      type: "String",
+      selectionname: "SampleRcpVou",
+      isSelection: false,
+      width: "130px",
+      isShortingOff:true
+    },
+    {
       headername: "Customer",
       fieldname: "NAME",
       type: "String",
@@ -107,22 +124,22 @@ function OrderTable({ setIsDisable }) {
       headername: "Order Date",
       fieldname: "OrderDate",
       type: "Date",
-      width: "95px",
+      width: "100px",
       isNotEditable: true,
     },
-    {
-      headername: "Delivery Date",
-      fieldname: "DeliveryDate",
-      type: "Date",
-      width: "110px",
-      isNotEditable: true,
-    },
-    {
-      headername: "Order No",
-      fieldname: "Orderno",
-      type: "String",
-      isNotEditable: true,
-    },
+    // {
+    //   headername: "Delivery Date",
+    //   fieldname: "DeliveryDate",
+    //   type: "Date",
+    //   width: "110px",
+    //   isNotEditable: true,
+    // },
+    // {
+    //   headername: "Order No",
+    //   fieldname: "Orderno",
+    //   type: "String",
+    //   isNotEditable: true,
+    // },
     {
       headername: "Image",
       fieldname: "Img",
@@ -146,30 +163,30 @@ function OrderTable({ setIsDisable }) {
       selectionname: "Wt",
       isSelection: false,
     },
-    {
-      headername: "Voucher No.",
-      fieldname: "SampleRcpVou",
-      type: "String",
-      selectionname: "SampleRcpVou",
-      isSelection: false,
-    },
+    // {
+    //   headername: "Party RefNo.",
+    //   fieldname: "SampleRcpVou",
+    //   type: "String",
+    //   selectionname: "SampleRcpVou",
+    //   isSelection: false,
+    // },
     {
       headername: "Karigor Code",
       fieldname: "Artisan",
       type: "String",
-      width: "110px",
+      width: "130px",
       selectionname: "Karigar",
       isSelection: true,
       options: Artisan,
     },
-    {
-      headername: "KarigarWt",
-      fieldname: "Karigarwt",
-      type: "number",
-      width: "100px",
-      selectionname: "Karigarwt",
-      isSelection: false,
-    },
+    // {
+    //   headername: "KarigarWt",
+    //   fieldname: "Karigarwt",
+    //   type: "number",
+    //   width: "100px",
+    //   selectionname: "Karigarwt",
+    //   isSelection: false,
+    // },
   ];
 
   // console.log(Customer);
@@ -285,12 +302,8 @@ function OrderTable({ setIsDisable }) {
   const SaveChange = (index) => {
     // console.log(editedData);
     EditCustOrderFunc(editedData);
-    SetIconVis(true)
-    setParams({ ActionID: -1,
-      IsAction: false,
-      printId: -1,
-      isIconVis:true
-    });
+    SetIconVis(true);
+    setParams({ ActionID: -1, IsAction: false, printId: -1, isIconVis: true });
     setIsDisable(false);
   };
   useEffect(() => {
@@ -322,8 +335,6 @@ function OrderTable({ setIsDisable }) {
         Karigarwt: null,
         Karigar: null,
       });
-
-     
     } else if (
       CustOrderEditError &&
       !isCustOrderEditLoading &&
@@ -334,14 +345,12 @@ function OrderTable({ setIsDisable }) {
         autoClose: 3000,
       });
     }
-    setParams({ ActionID: -1,
-      IsAction: false,
-      printId: -1, });
+    setParams({ ActionID: -1, IsAction: false, printId: -1 });
     setIsDisable(false);
     ClearStateEditCustOrder();
   }, [isCustOrderEditLoading, CustOrderEditSuccess, CustOrderEditError]);
   const ActionFunc = (tabindex) => {
-    SetIconVis(false)
+    SetIconVis(false);
     if (
       filteredData[tabindex]?.Sampledelv !== null &&
       filteredData[tabindex]?.Despatch !== null &&
@@ -351,7 +360,7 @@ function OrderTable({ setIsDisable }) {
         position: "top-right",
         autoClose: 3000,
       });
-      SetIconVis(true)
+      SetIconVis(true);
     } else {
       setParams((prev) => ({
         ...prev,
@@ -407,9 +416,7 @@ function OrderTable({ setIsDisable }) {
       toast.dismiss();
       toast.error(kReceiveError, { autoClose: 3000, position: "top-right" });
     }
-    setParams({ ActionID: -1,
-      IsAction: false,
-      printId: -1, });
+    setParams({ ActionID: -1, IsAction: false, printId: -1 });
     setIsDisable(false);
     ClearKarigarReceive();
   }, [kReceiveError, kReceiveSuccess]);
@@ -429,9 +436,7 @@ function OrderTable({ setIsDisable }) {
         position: "top-right",
       });
     }
-    setParams({ ActionID: -1,
-      IsAction: false,
-      printId: -1, });
+    setParams({ ActionID: -1, IsAction: false, printId: -1 });
     setIsDisable(false);
     ClearCustSampleDelivered();
   }, [CustSampleDeliverError, CustSampleDeliverSuccess]);
@@ -451,19 +456,16 @@ function OrderTable({ setIsDisable }) {
         position: "top-right",
       });
     }
-    setParams({ ActionID: -1,
-      IsAction: false,
-      printId: -1, });
+    setParams({ ActionID: -1, IsAction: false, printId: -1 });
     setIsDisable(false);
     clearCustOrderDespatch();
   }, [CustOrderDespatchError, CustOrderDespatchSuccess]);
 
-
   return (
-    <div style={{ width: "auto", overflow: "auto", height: "50vh" }}>
+    <div id="table-box" style={{height:"55vh"}}>
       <Table
         tab={filteredData || []}
-params={params}
+        params={params}
         setParams={setParams}
         isAction={params?.IsAction}
         isIcon={iconVis}
@@ -486,6 +488,8 @@ params={params}
         DeliveryFunc={DeliveryFunc}
         DespatchFunc={DespatchFunc}
         KarigarReceiveFunc={KarigarReceiveFunc}
+        isCheckButton={true}
+        isCheckedField={"isChecked"}
       />
     </div>
   );

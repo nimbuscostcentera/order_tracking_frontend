@@ -22,6 +22,7 @@ import PartySummary from "./Pages/Party/PartySummary/index"
 import Setup from "./Pages/Setup";
 import UserListEdit from "./Pages/User";
 import Profile from "./Pages/Profile/Profile";
+import ArtisanWiseWt from "./Pages/Regular/KarigarWiseWt/ArtisanWiseWt";
 const App = createBrowserRouter([
   {
     path: "/",
@@ -59,7 +60,7 @@ const App = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <Profile/>,
+        element: <Profile />,
         errorElement: <Pagenotfound />,
       },
       {
@@ -80,11 +81,11 @@ const App = createBrowserRouter([
             element: <RegularOrderReport />,
             errorElement: <Pagenotfound />,
           },
-          // {
-          //   path: "regular-report",
-          //   element: <OrderSummary/>,
-          //   errorElement: <Pagenotfound />,
-          // },
+          {
+            path: "artisan-wise-wt",
+            element: <ArtisanWiseWt />,
+            errorElement: <Pagenotfound />,
+          },
         ],
       },
       {
@@ -136,11 +137,6 @@ const App = createBrowserRouter([
           {
             path: "city",
             element: <ManageCity />,
-            errorElement: <Pagenotfound />,
-          },
-          {
-            path: "state",
-            element: <ManageState />,
             errorElement: <Pagenotfound />,
           },
           {

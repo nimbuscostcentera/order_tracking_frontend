@@ -10,6 +10,7 @@ import useFetchState from "../../../store/useFetchState";
 import useFetchAuth from "../../../store/useFetchAuth";
 import useRegCustomer from "../../../store/useRegCustomer";
 import PhnoValidation from "../../../GlobalFunctions/PhnoValidation"
+import EmailValidate from "../../../GlobalFunctions/EmailValidation"
 function CustListEdit() {
   const navigate = useNavigate();
   const [isDisable, setIsDisable] = useState(false);
@@ -36,22 +37,19 @@ function CustListEdit() {
     }));
   }, [isCityLoading]);
 
-  const StateListOption = useMemo(() => {
-    return StateList?.map((item) => ({
-      label: `${item?.StateCode}:${item?.DESCRIPTION}`,
-      value: `${item?.id}`,
-    }));
-  }, [isStateLoading]);
+  // const StateListOption = useMemo(() => {
+  //   return StateList?.map((item) => ({
+  //     label: `${item?.StateCode}:${item?.DESCRIPTION}`,
+  //     value: `${item?.id}`,
+  //   }));
+  // }, [isStateLoading]);
 
   const [CustData, setCustData] = useState({
     CUSTCode: null,
     NAME: null,
     PHONE: null,
-    ADDRESS1: null,
-    ADDRESS2: null,
     ADDRESS3: null,
     City: null,
-    State: null,
   });
   useEffect(() => {
     console.log(CustRegSuccess, CustRegError);
@@ -70,11 +68,8 @@ function CustListEdit() {
         CUSTCode: null,
         NAME: null,
         PHONE: null,
-        ADDRESS1: null,
-        ADDRESS2: null,
         ADDRESS3: null,
         City: null,
-        State: null,
       });
       
     } else if (CustRegError && !isCustRegLoading && !CustRegSuccess) {
@@ -96,7 +91,7 @@ function CustListEdit() {
 
   const SaveData = () => {
     // Destructure CustData for easy validation
-    const { CUSTCode, NAME, PHONE, ADDRESS1, ADDRESS2, ADDRESS3, City, State } =
+    const { CUSTCode, NAME, PHONE, ADDRESS3, City } =
       CustData;
  
     // Check if any required field is empty or null
@@ -104,11 +99,8 @@ function CustListEdit() {
       !CUSTCode ||
       !NAME ||
       !PHONE ||
-      !ADDRESS1 ||
-      !ADDRESS2 ||
       !ADDRESS3 ||
-      !City ||
-      !State
+      !City
     ) {
       toast.error("All fields are required!", {
         position: "top-right",
@@ -132,6 +124,14 @@ function CustListEdit() {
      });
      return;
   }
+
+  if(!EmailValidate(ADDRESS3)){
+    toast.error("Invalid Email!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+    return;
+  }
     // Proceed to save data if validation passes
     InsertCust({ ...CustData, ...user });
   };
@@ -154,10 +154,10 @@ function CustListEdit() {
         </Col>
         <Col
           xs={12}
-          sm={12}
-          md={12}
-          lg={12}
-          xl={12}
+          sm={10}
+          md={10}
+          lg={10}
+          xl={10}
           style={{ paddingLeft: "15px", margin: "0px" }}
         >
           <div
@@ -180,11 +180,8 @@ function CustListEdit() {
                   <th>Customer Code*</th>
                   <th>Customer Name*</th>
                   <th>Phone No.*</th>
-                  <th>Address1*</th>
-                  <th>Address2*</th>
-                  <th>Address3*</th>
+                  <th>Email*</th>
                   <th>City*</th>
-                  <th>State*</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,29 +224,7 @@ function CustListEdit() {
                   </td>
                   <td>
                     <input
-                      placeholder="Address1"
-                      className="input-cell"
-                      name="ADDRESS1"
-                      value={CustData?.ADDRESS1 || ""}
-                      onChange={OnChangeHandler}
-                      type="text"
-                      maxLength={300}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      placeholder="Address2"
-                      className="input-cell"
-                      name="ADDRESS2"
-                      value={CustData?.ADDRESS2 || ""}
-                      onChange={OnChangeHandler}
-                      type="text"
-                      maxLength={300}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      placeholder="Address3"
+                      placeholder="Email"
                       name="ADDRESS3"
                       className="input-cell"
                       value={CustData?.ADDRESS3 || ""}
@@ -270,7 +245,7 @@ function CustListEdit() {
                       width={"200px"}
                     />
                   </td>
-                  <td>
+                  {/* <td>
                     <SearchableDropDown
                       options={StateListOption}
                       handleChange={(e) => OnChangeHandler(e)}
@@ -281,22 +256,27 @@ function CustListEdit() {
                       defaultval={-1}
                       width={"200px"}
                     />
-                  </td>
+                  </td> */}
                 </tr>
               </tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-end align-items-center my-1">
+     
+        </Col>
+        <Col xs={12} sm={2} md={2} lg={2} xl={2} >
+       
+            <div className="d-flex justify-content-start align-items-center" style={{ height: "100%"}}>
             <Button
               variant="success"
-              style={{ padding: "1px 9px" }}
+              style={{ padding: "1px 9px",display:"block"}}
               onClick={() => SaveData()}
               disabled={isDisable}
             >
               {/* <i className="bi bi-plus"></i> */}
               Add
             </Button>
-          </div>
+            </div>
+          
         </Col>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <hr className="my-1" />

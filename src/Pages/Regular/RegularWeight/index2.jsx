@@ -10,56 +10,39 @@ import checkOrder from "../../../GlobalFunctions/Ordercheck";
 import SortArrayByString from "../../../GlobalFunctions/SortarrayByString";
 import SortArrayByDate from "../../../GlobalFunctions/SortArrayByDate";
 import SortArrayByNumber from "../../../GlobalFunctions/SortArrayByNumber";
-import useFetchCust from "../../../store/useFetchCust";
-import GetReportPdf from "../RegularWeight/getReportPdf";
+import GetReportPdf from "./getReportPdf";
 import useRegularFetch from "../../../store/useRegularFetch";
 import useFetchItem from "../../../store/useFetchItem";
-
-function RegularReport() {
+import useFetchRegularByWt from "../../../store/useFetchRegularByWt";
+import "./report.css";
+function RegularOrderWeight() {
   // State variables
   const [params, setParams] = useState({
     ActionID: -1,
     IsAction: false,
     printId: -1,
-    ArtisanId: null,
     ItemId: null,
-    ChoiceId: "Till Pending",
   });
+
   const [filteredData, setFilteredData] = useState([]);
 
   // Store data from Zustand
   const { user } = useFetchAuth();
-const { ItemList, fetchItemMaster } = useFetchItem();
-  const { ArtisanList, fetchArtisanMaster } = useFetchArtisan();
-  const { RegularError, isRegularloading, fetchRegularMaster, RegularList } =
-    useRegularFetch();
+  const { ItemList, fetchItemMaster } = useFetchItem();
+  const {
+    RegularByWtError,
+    isRegularByWtloading,
+    fetchRegularByWtMaster,
+    RegularByWtList,
+  } = useFetchRegularByWt();
 
   // Column definitions for the table
   const Col1 = [
-    { headername: "OrderNo", fieldname: "Orderno", type: "String" },
-    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
-    { headername: "Artisan Code", fieldname: "ArtisanCode", type: "String" },
     { headername: "Item Code", fieldname: "Itemcode", type: "String" },
-    { headername: "Weight", fieldname: "wt", type: "number" },
+    { headername: "Total Weight", fieldname: "totwt", type: "number" },
   ];
-  const choice = ["Till Pending", "Done", "All"];
 
   // All function
-  const transformData = (data) => {
-    if (!data) {
-      return []; // Handle error or empty case
-    }
-
-    return data.flatMap((order) => {
-      // For each order, create a new object for every detail item
-      return order.Detail.map(({Rcv, Itemcode, wt }) => ({
-          ...order,
-          Rcv,
-        Itemcode,
-        wt,
-      }));
-    });
-  };
 
   const SortingFunc = (header, type) => {
     const currentOrder = checkOrder(filteredData, header);
@@ -80,20 +63,12 @@ const { ItemList, fetchItemMaster } = useFetchItem();
     let value = e.target.value;
     setParams({ ...params, [key]: value });
   };
-
   const handleprint = () => {
+    console.log(filteredData,"filter data")
     GetReportPdf(filteredData);
     // console.log(filteredData);
   };
-
-  // Artisan list for dropdown
-  const SelectArtisanList = useMemo(() => {
-    if (!ArtisanList) return []; // Ensure ArtisanList is available
-    return ArtisanList.map((item) => ({
-      label: `${item?.CODE}`, // Ensure CODE exists
-      value: item?.CODE, // Ensure ID exists
-    }));
-  }, [ArtisanList]);
+  console.log(RegularByWtList,"regularByWt")
 
   // Item list for dropdown
   const SelectItemList = useMemo(() => {
@@ -104,59 +79,40 @@ const { ItemList, fetchItemMaster } = useFetchItem();
     }));
   }, [ItemList]);
 
-  // Choice list for dropdown
-  const SelectChoiceList = useMemo(() => {
-    if (!choice) return []; // Ensure ArtisanList is available
-    return choice.map((item) => ({
-      label: item, // Ensure CODE exists
-      value: item, // Ensure ID exists
+const filterCustomerData = () => {
+  if (params.ItemId) {
+    const RegularByWtListFiltered = RegularByWtList.filter(
+      (item) => item.Itemcode === params.ItemId
+    ).map((item) => ({
+      ...item,
+      totwt: item.totwt.toFixed(3), // Ensure it's still a number
     }));
-  }, [choice]);
 
-  const filterCustomerData = () => {
-    // Transform the data first
-    const transformedList = transformData(RegularList);
-console.log(transformedList);
-    if (params.ArtisanId) {
-      const filtered = transformedList.filter(
-        (customer) => customer.ArtisanCode === params.ArtisanId
-      );
-      setFilteredData(filtered);
-    } else if(params.ItemId){
-      const filtered = transformedList.filter(
-        (customer) => customer.Itemcode === params.ItemId
-      );
-      setFilteredData(filtered);
-    } else if(params.ChoiceId === "Till Pending"){
-      const filtered = transformedList.filter(
-        (customer) => customer.Rcv === null
-      );
-      setFilteredData(filtered);
-    } else if(params.ChoiceId === "Done"){
-      const filtered = transformedList.filter(
-        (customer) => customer.Rcv !== null
-      );
-      setFilteredData(filtered);
-    }
-    else {
-      setFilteredData(transformedList); // Reset to full list if no artisan selected
-    }
-  };
+    setFilteredData(RegularByWtListFiltered);
+  } else {
+    const formattedList = RegularByWtList.map((item) => ({
+      ...item,
+      totwt: item.totwt.toFixed(3), // Format all data if no filter is applied
+    }));
+
+    setFilteredData(formattedList);
+  }
+};
+
 
   const ActionFunc = () => {};
   const SaveChange = () => {};
 
   // useEffects
   useEffect(() => {
-      fetchArtisanMaster();
-      fetchItemMaster();
+    fetchItemMaster();
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    fetchRegularMaster({ today }); // Add other fields as required
+    fetchRegularByWtMaster({ today }); // Add other fields as required
   }, [user]);
 
   useEffect(() => {
     filterCustomerData();
-  }, [RegularList, params.ArtisanId, params.ItemId, params.ChoiceId]);
+  }, [RegularByWtList, params.ItemId]);
 
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
@@ -207,61 +163,9 @@ console.log(transformedList);
                 fontWeight: "bold",
               }}
             >
-              Choice:
-            </label>
-            <div style={{ width: "auto" }}>
-              <SearchableDropDown2
-                options={SelectChoiceList}
-                handleChange={OnChangeHandler}
-                label="ChoiceId"
-                selectedVal={params.ChoiceId} // Pass the selected artisan
-                placeholder="Select Artisan"
-              />
-            </div>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={12} lg={6} xl={4}>
-          <div
-            className="d-flex align-items-center"
-            style={{ marginBottom: "10px" }}
-          >
-            <label
-              htmlFor="choiceDropdown"
-              style={{
-                marginRight: "10px",
-                fontSize: "13px",
-                fontWeight: "bold",
-              }}
-            >
-              Artisan Code:
-            </label>
-            <div style={{ width: "auto" }}>
-              <SearchableDropDown2
-                options={SelectArtisanList}
-                handleChange={OnChangeHandler}
-                label="ArtisanId"
-                selectedVal={params.ArtisanId} // Pass the selected artisan
-                placeholder="Select Artisan"
-              />
-            </div>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={12} lg={6} xl={4}>
-          <div
-            className="d-flex align-items-center"
-            style={{ marginBottom: "10px" }}
-          >
-            <label
-              htmlFor="choiceDropdown"
-              style={{
-                marginRight: "10px",
-                fontSize: "13px",
-                fontWeight: "bold",
-              }}
-            >
               Item Code:
             </label>
-            <div style={{ width: "auto" }}>
+            <div style={{ width: "auto", zIndex: "100" }}>
               <SearchableDropDown2
                 options={SelectItemList}
                 handleChange={OnChangeHandler}
@@ -275,10 +179,7 @@ console.log(transformedList);
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div style={{
-            width: "100%", overflow: "auto", height: "65vh"
-            
-          }}>
+          <div id="table-box" style={{height:"70vh"}}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}
@@ -297,4 +198,4 @@ console.log(transformedList);
   );
 }
 
-export default RegularReport;
+export default RegularOrderWeight;

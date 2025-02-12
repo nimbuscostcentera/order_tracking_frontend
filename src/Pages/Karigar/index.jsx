@@ -9,6 +9,7 @@ import useFetchAuth from "../../store/useFetchAuth";
 import useAddArtisan from "../../store/useAddArtisan";
 import useFetchItem from "../../store/useFetchItem";
 import PhnoValidation from "../../GlobalFunctions/PhnoValidation";
+import EmailValidate from "../../../src/GlobalFunctions/EmailValidation"
 
 function KarigarListEdit() {
   const [karigarData, setKarigarData] = useState({
@@ -17,6 +18,7 @@ function KarigarListEdit() {
     ADDRESS: null,
     PHONE: null,
     CONTACTPERSON: null,
+    MANAGER_CONTACT:null,
     City: null,
     data: [],
     selectedValue: [],
@@ -60,7 +62,8 @@ function KarigarListEdit() {
       !karigarData.NAME ||
       !karigarData.ADDRESS ||
       !karigarData.PHONE ||
-      !karigarData.CONTACTPERSON
+      !karigarData.CONTACTPERSON ||
+      !karigarData.MANAGER_CONTACT
     ) {
       toast.error("All fields are required!", {
         position: "top-right",
@@ -68,6 +71,15 @@ function KarigarListEdit() {
       });
       return;
     }
+
+    if(!EmailValidate(karigarData.ADDRESS)){
+      toast.error("Invalid Email!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     if (!/^\d{10}$/.test(karigarData.PHONE)) {
       toast.error("Phone number must be exactly 10 digits!", {
         position: "top-right",
@@ -82,6 +94,20 @@ function KarigarListEdit() {
      });
      return;
   }
+  if (!/^\d{10}$/.test(karigarData.MANAGER_CONTACT)) {
+    toast.error("Phone number must be exactly 10 digits!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+    return;
+  }
+if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
+   toast.error("Invalid Phone Number!", {
+     position: "top-right",
+     autoClose: 3000,
+   });
+   return;
+}
   
     // Proceed to save data if validation passes
     InsertKarigar({ ...karigarData, ...user });
@@ -110,6 +136,7 @@ function KarigarListEdit() {
           ADDRESS: null,
           PHONE: null,
           CONTACTPERSON: null,
+          MANAGER_CONTACT:null,
           data: [],
           selectedValue: [],
         });
@@ -173,9 +200,10 @@ function KarigarListEdit() {
                   </th>
                   <th>Artisan Code*</th>
                   <th>Artisan Name*</th>
-                  <th>Address*</th>
+                  <th>Email*</th>
                   <th>Phone No.*</th>
-                  <th>Contact Person*</th>
+                  <th>Manager Name*</th>
+                  <th>Manager Number</th>
                   <th>Select Items*</th>
                 </tr>
               </thead>
@@ -210,12 +238,12 @@ function KarigarListEdit() {
                   </td>
                   <td>
                     <input
-                      placeholder="Artisan Address"
+                      placeholder="Email"
                       className="input-cell"
                       value={karigarData?.ADDRESS || ""}
                       name="ADDRESS"
                       onChange={OnChangeHandler}
-                      type="tel"
+                      type="text"
                       maxLength={100}
                       style={{ width: "100%" }}
                     />
@@ -241,6 +269,18 @@ function KarigarListEdit() {
                       onChange={OnChangeHandler}
                       type="text"
                       maxLength={300}
+                      style={{ width: "100%" }}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      placeholder="Manager Number"
+                      className="input-cell"
+                      name="MANAGER_CONTACT"
+                      value={karigarData?.MANAGER_CONTACT || ""}
+                      onChange={OnChangeHandler}
+                      type="text"
+                      maxLength={10}
                       style={{ width: "100%" }}
                     />
                   </td>

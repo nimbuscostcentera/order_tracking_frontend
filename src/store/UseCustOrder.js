@@ -8,7 +8,7 @@ const useCustOrder = create((set) => ({
   CustDashError: null,
 
   fetchCustDash: async () => {
-    set({ loading: true, CustDashError: null }); // Start loading
+    set({ CustDashloading: true, CustDashError: null }); // Start loading
     try {
         const result = await axios.post(API);
         const { data } = result;

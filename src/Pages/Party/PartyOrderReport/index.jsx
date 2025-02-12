@@ -336,7 +336,7 @@ console.log(transformedList);
         </Col>
 
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div style={{ width: "100%", overflow: "auto", height: "50vh" }}>
+          <div id="table-box" style={{height:"70vh"}}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

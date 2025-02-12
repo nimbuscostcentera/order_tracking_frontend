@@ -8,7 +8,7 @@ import useAddPurity from "../../store/useAddPurity";
 import PurityTable from "./PurityTable";
 
 function PurityListEdit() {
-  const [CustData, setCustData] = useState({ PURITY: null, DESCRIPTION: null });
+  const [CustData, setCustData] = useState({ PURITY: null });
   const [isDisable, setIsDisable] = useState(false);
   const { user } = useFetchAuth();
   const {
@@ -35,7 +35,7 @@ function PurityListEdit() {
   }
 
   const SaveData = () => {
-     if (!CustData.PURITY || !CustData.DESCRIPTION) {
+     if (!CustData.PURITY) {
           toast.error("All fields are required! ", {
             position: "top-right",
             autoClose: 3000,
@@ -53,7 +53,7 @@ function PurityListEdit() {
     else if (AddPuritySuccess && !isAddPurityLoading && !AddPurityError)
     {
       toast.success("Purity Added Successfully", { position: "top-right", autoClose: 3000 });
-      setCustData({ CityCode: null, DESCRIPTION: null });
+      setCustData({ CityCode: null});
     }
     else if (AddPurityError && !isAddPurityLoading && !AddPuritySuccess)
     {
@@ -85,21 +85,21 @@ function PurityListEdit() {
 
         <Col
           xs={12}
-          sm={12}
-          md={6}
-          lg={6}
-          xl={6}
+          sm={5}
+          md={4}
+          lg={3}
+          xl={3}
           style={{ paddingLeft: "15px", margin: "0px" }}
         >
           <div
             style={{
-              width: "100%",
+              width: "80%",
               overflow: "auto",
             }}
           >
             <table
               style={{
-                width: "100%",
+                width: "80%",
               }}
             >
               <thead>
@@ -112,8 +112,7 @@ function PurityListEdit() {
                   >
                     <i className="bi bi-person-circle"></i>
                   </th>
-                  <th>Purity Code*</th>
-                  <th>DESCRIPTION</th>
+                  <th>Purity*</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,7 +123,7 @@ function PurityListEdit() {
                   <td>
                     <input
                       style={{ width: "100%" }}
-                      placeholder="Purity Code"
+                      placeholder="Purity"
                       className="input-cell"
                       name="PURITY"
                       value={CustData?.PURITY || ""}
@@ -133,7 +132,7 @@ function PurityListEdit() {
                       maxLength={100}
                     />
                   </td>
-                  <td>
+                  {/* <td>
                     <input
                       style={{ width: "100%" }}
                       placeholder="Purity name"
@@ -144,13 +143,13 @@ function PurityListEdit() {
                       type="text"
                       maxLength={100}
                     />
-                  </td>
+                  </td> */}
                 </tr>
               </tbody>
             </table>
           </div>
         </Col>
-        <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+        <Col xs={12} sm={7} md={8} lg={9} xl={9}>
           <div className="d-flex justify-content-start align-items-center mt-3">
             <Button variant="success" onClick={() => SaveData()} disabled={isDisable}>
               save

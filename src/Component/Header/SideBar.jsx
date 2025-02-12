@@ -150,6 +150,18 @@ function SideBar() {
               </OverlayTrigger>
               {Open && <span className="ml-2">Item wise Wt</span>}
             </Link>
+            <Link
+              to={"/auth/regular/artisan-wise-wt"}
+              className="border-bottom border-secondary"
+            >
+              <OverlayTrigger
+                placement="bottom"
+                overlay={renderTooltip("Karigar wise Wt")}
+              >
+                <i className="bi bi-graph-down ps-3 pe-1"></i>
+              </OverlayTrigger>
+              {Open && <span className="ml-2">Karigar wise Wt</span>}
+            </Link>
           </div>
         </details>
 
@@ -284,18 +296,7 @@ function SideBar() {
               </OverlayTrigger>
               {Open && <span className="ml-2">Manage City</span>}
             </Link>
-            <Link
-              to={"/auth/manager/state"}
-              className="border-bottom border-secondary"
-            >
-              <OverlayTrigger
-                placement="bottom"
-                overlay={renderTooltip("Manage States")}
-              >
-                <i className="bi bi-gear-fill ps-3 pe-1"></i>
-              </OverlayTrigger>
-              {Open && <span className="ml-2">Manage States</span>}
-            </Link>
+
             <Link
               to={"/auth/manager/party"}
               className="border-bottom border-secondary"

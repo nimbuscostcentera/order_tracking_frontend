@@ -38,7 +38,7 @@ function EstimateTable({
                 {col.label}
               </th>
             ))}
-            {isDelete ? <th className="th-decor">Actions</th> : null}
+            {isDelete && <th className="th-decor">Actions</th>}
           </tr>
         </thead>
         <tbody className="table-body-decor">
@@ -51,7 +51,19 @@ function EstimateTable({
                   className="td-cell"
                   style={{ width: col?.width }}
                 >
-                  {col?.SelectOption ? (
+                  {/* Checkbox Fix */}
+                  {col?.isCheckbox ? (
+                    <div className="table-input-wrapper mx-5">
+                      <input
+                        type="checkbox"
+                        name={col.key}
+                        checked={!!row[col.key]} // Ensuring Boolean value
+                        onChange={(event) =>
+                          handleChange(indexrow, col.key, event.target.checked)
+                        }
+                      />
+                    </div>
+                  ) : col?.SelectOption ? (
                     <div className="table-input-wrapper">
                       <SelectOption
                         Soptions={
@@ -64,7 +76,7 @@ function EstimateTable({
                           handleChange(indexrow, col?.key, event)
                         }
                         SelectStyle={{
-                          minwidth: "180px",
+                          minWidth: "180px",
                           width: col?.width || "100%",
                           height: "35px",
                           margin: 0,
@@ -73,42 +85,31 @@ function EstimateTable({
                           color: "grey",
                         }}
                       />
-                      {col.isButton && (
-                        <button
-                          type="button"
-                          className="table-button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#exampleModal"
-                          onClick={() => FetchRowId(row?.id)}
-                        >
-                          <i className="bi bi-calculator-fill"></i>
-                        </button>
-                      )}
                     </div>
                   ) : col?.isTableSelection ? (
                     <div className="d-flex justify-content-start flex-nowrap table-input-wrapper">
                       {col?.type === "file" ? (
                         <input
-                        type="file"
-                        name={col.key}
-                        // ref={fileInputRefs}  
-                        value={(row[col.key] || "")}
-                        onChange={(event) => handleChange(indexrow, col.key, event)}
-                        style={{ width: "170px" }}
-                        placeholder={col.label}
-                        className="input-cell"
+                          type="file"
+                          name={col.key}
+                          ref={fileInputRefs}
+                          onChange={(event) =>
+                            handleChange(indexrow, col.key, event)
+                          }
+                          style={{ width: "170px" }}
+                          placeholder={col.label}
+                          className="input-cell"
                         />
                       ) : (
                         <input
                           type={col.type}
                           name={col.key}
-                          value={(row[col.key] || "")}
+                          value={row[col.key] || ""}
                           maxLength={col?.maxlen}
-                          max={col?.maxlen}
                           onChange={(event) =>
                             handleChange(indexrow, col.key, event)
                           }
-                          style={{ minwidth: "170px", width: "100%" }}
+                          style={{ minWidth: "170px", width: "100%" }}
                           placeholder={col.label}
                           className="input-cell"
                         />
@@ -123,9 +124,9 @@ function EstimateTable({
                     </div>
                   ) : col?.AutoSearch ? (
                     <SearchableDropdown
-                      handleChange={(obj) => {
-                        handleChange(indexrow, col?.key, obj);
-                      }}
+                      handleChange={(obj) =>
+                        handleChange(indexrow, col?.key, obj)
+                      }
                       id={col?.SearchValue}
                       label={col?.SearchLabel}
                       options={col?.data}
@@ -137,10 +138,11 @@ function EstimateTable({
                     />
                   ) : (
                     <div className="table-input-wrapper">
-                      {col?.type == "file" ? (
+                      {col?.type === "file" ? (
                         <input
-                          type={col.type}
+                          type="file"
                           name={col.key}
+                          ref={fileInputRefs}
                           onChange={(event) =>
                             handleChange(indexrow, col.key, event)
                           }
@@ -152,32 +154,21 @@ function EstimateTable({
                         <input
                           type={col.type}
                           name={col.key}
-                          value={col.type !== "file" && (row[col.key] || "")}
+                          value={row[col.key] || ""}
                           maxLength={col?.maxlen}
-                          max={col?.maxlen}
                           onChange={(event) =>
                             handleChange(indexrow, col.key, event)
                           }
-                          style={{ minwidth: "170px", width: "100%" }}
+                          style={{ minWidth: "170px", width: "100%" }}
                           placeholder={col.label}
                           className="input-cell"
                         />
-                      )}
-
-                      {col.isButton && (
-                        <Button
-                          type="button"
-                          className="table-button"
-                          onClick={() => FetchRowId(row?.[id])}
-                        >
-                          <i className="bi bi-calculator-fill"></i>
-                        </Button>
                       )}
                     </div>
                   )}
                 </td>
               ))}
-              {isDelete ? (
+              {isDelete && (
                 <td className="td-cell" style={{ width: "50px" }}>
                   <button
                     className={
@@ -185,13 +176,13 @@ function EstimateTable({
                         ? "table-button-del-disabled"
                         : "table-button-del"
                     }
-                    disabled={row?.[id] === 1 ? true : false}
+                    disabled={row?.[id] === 1}
                     onClick={() => deleteRow(row?.[id])}
                   >
                     <i className="bi bi-trash"></i>
                   </button>
                 </td>
-              ) : null}
+              )}
             </tr>
           ))}
         </tbody>

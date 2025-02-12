@@ -27,7 +27,8 @@ function RegularOrder() {
   const [regularData, setRegularData] = useState([
     {
       id: 1,
-      PURITY: null,
+      PURITY:null,
+      DESCRIPTION: null,
       OrderDate: currentday.format("YYYY-MM-DD"),
       OrderNo: null,
       Karigr: null,
@@ -190,6 +191,7 @@ const onChangeHandler = (rowIndex, colKey, e) => {
   const SubmitHandler = (e) => {
     e.preventDefault();
     regularData.data = [...rows];
+    console.log(regularData)
      if(!regularData[0].Karigr || !regularData[0].ItemCodes || !regularData[0].OrderDate ||
           !regularData[0].PURITY
          ){
@@ -249,7 +251,8 @@ const onChangeHandler = (rowIndex, colKey, e) => {
       setRegularData([
         {
           id: 1,
-          PURITY: null,
+          PURITY:null,
+          DESCRIPTION: null,
           OrderDate: currentday.format("YYYY-MM-DD"),
           OrderNo: null,
           Karigr: null,

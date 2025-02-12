@@ -1,52 +1,60 @@
 import React, { useEffect, useState, useMemo } from "react";
-import Table from "../../../Component/Table";
-import useCustOrder from "../../../store/UseCustOrder";
-import useFetchAuth from "../../../store/useFetchAuth";
-import usePlaceCustOrder from "../../../store/usePlaceOrderCust";
+
 import { Col, Container, Row } from "react-bootstrap";
-import useFetchArtisan from "../../../store/useFetchArtisan";
+
+import Table from "../../../Component/Table";
+import ReusableModal from "../../../Component/Modal";
 import SearchableDropDown2 from "../../../Component/SearchableDropDown2";
+
 import checkOrder from "../../../GlobalFunctions/Ordercheck";
 import SortArrayByString from "../../../GlobalFunctions/SortarrayByString";
 import SortArrayByDate from "../../../GlobalFunctions/SortArrayByDate";
 import SortArrayByNumber from "../../../GlobalFunctions/SortArrayByNumber";
-import GetReportPdf from "./getReportPdf";
-import useRegularFetch from "../../../store/useRegularFetch";
-import useFetchItem from "../../../store/useFetchItem";
-import useRegularOrderSummary from "../../../store/useRegularOrderSummary";
 
-function RegularOrderWeight() {
+import useArtisanWiseWt from "../../../store/useArtisanWiseWt";
+import useFetchAuth from "../../../store/useFetchAuth";
+import useFetchArtisan from "../../../store/useFetchArtisan";
+import useArtisanWiseOrderedItemwt from "../../../store/useArtisanWiseOrderedItemwt"
+import GetReportPdf from "./getRepoPdf";
+
+import "./report.css";
+import moment from "moment";
+function ArtisanWiseWt() {
   // State variables
+
   const [params, setParams] = useState({
     ActionID: -1,
     IsAction: false,
     printId: -1,
-    ItemId: null,
+    ArtisanID: null,
+    showModal:false
   });
 
   const [filteredData, setFilteredData] = useState([]);
 
   // Store data from Zustand
   const { user } = useFetchAuth();
-  const { ItemList, fetchItemMaster } = useFetchItem();
+  // const { ItemList, fetchItemMaster } = useFetchItem();
+  const { fetchArtisanMaster, ArtisanList } = useFetchArtisan();
   const {
-    RegularOrderSummaryError,
-    isRegularOrderSummaryLoading,
-    FetchRegularOrderSummary,
-    RegularOrderSummaryList,
-    ClearSummeryRegularOrder,
-  } = useRegularOrderSummary();
-
+    RegularByWtError,
+    isRegularByWtloading,
+    fetchArtisanWiseWt,
+    ArtisanWiseWtList,
+  } = useArtisanWiseWt();
+  const { fetchArtisanWiseOrderedItemwt,ArtwtItem} = useArtisanWiseOrderedItemwt();
   // Column definitions for the table
   const Col1 = [
-    { headername: "OrderNo", fieldname: "Orderno", type: "String" },
-    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
-    { headername: "Artisan Code", fieldname: "ArtisanCode", type: "String" },
-    { headername: "Item Code", fieldname: "ItemCode", type: "String" },
+    { headername: "Artisan Name", fieldname: "name", type: "String" },
+    { headername: "Artisan Code", fieldname: "code", type: "String" },
     { headername: "Total Weight", fieldname: "totwt", type: "number" },
   ];
-
-  // All function
+  // Column definitions for the Sub table
+    const Col2 = [
+      { headername: "Item Name", fieldname: "DESCRIPTION", type: "String" },
+      { headername: "Item Code", fieldname: "Itemcode", type: "String" },
+      { headername: "Weight", fieldname: "wt", type: "number" },
+    ];
 
   const SortingFunc = (header, type) => {
     const currentOrder = checkOrder(filteredData, header);
@@ -66,54 +74,71 @@ function RegularOrderWeight() {
     let key = e.target.name;
     let value = e.target.value;
     setParams({ ...params, [key]: value });
+    console.log(params, "params");
+    
   };
-
   const handleprint = () => {
     GetReportPdf(filteredData);
-    // console.log(filteredData);
   };
+  console.log(ArtisanWiseWtList, "regularByWt");
 
   // Item list for dropdown
-  const SelectItemList = useMemo(() => {
-    if (!ItemList) return []; // Ensure ArtisanList is available
-    return ItemList.map((item) => ({
-      label: `${item?.ITEMCODE}`, // Ensure CODE exists
-      value: item?.ITEMCODE, // Ensure ID exists
+  const SelectArtisanList = useMemo(() => {
+    if (!ArtisanList) return []; // Ensure ArtisanList is available
+    return ArtisanList.map((item) => ({
+      label: `${item?.CODE}`, // Ensure CODE exists
+      value: item?.CODE, // Ensure ID exists
     }));
-  }, [ItemList]);
+  }, [ArtisanList]);
 
   const filterCustomerData = () => {
-    if (params.ItemId) {
-      const RegularOrderSummaryListFiltered = RegularOrderSummaryList.filter(
-        (item) => item.Itemcode === params.ItemId
-      );
-      setFilteredData(RegularOrderSummaryListFiltered);
+    if (params.ArtisanID) {
+      const RegularByWtListFiltered = ArtisanWiseWtList.filter(
+        (item) => item.code === params.ArtisanID
+      ).map((item) => ({
+        ...item,
+        totwt: item.totwt.toFixed(3), // Ensure it's still a number
+      }));
+
+      setFilteredData(RegularByWtListFiltered);
     } else {
-      setFilteredData(RegularOrderSummaryList); // Reset to full list if no artisan selected
+      const formattedList = ArtisanWiseWtList.map((item) => ({
+        ...item,
+        totwt: item.totwt.toFixed(3), // Format all data if no filter is applied
+      }));
+
+      setFilteredData(formattedList);
     }
   };
 
-  const ActionFunc = () => {};
-  const SaveChange = () => {};
 
   // useEffects
   useEffect(() => {
-    fetchItemMaster();
+    fetchArtisanMaster();
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    FetchRegularOrderSummary({ today }); // Add other fields as required
+    fetchArtisanWiseWt({ today:today, ...user }); // Add other fields as required
   }, [user]);
 
   useEffect(() => {
     filterCustomerData();
-  }, [RegularOrderSummaryList, params.ItemId]);
+  }, [ArtisanWiseWtList, params.ArtisanID]);
 
+    const handleViewClick = (index) => {
+    setParams((prev) => ({ ...prev, viewIndex: index }));
+      setParams({ ...params, showModal: true });
+    const  today=moment().format("YYYY-MM-DD");
+    fetchArtisanWiseOrderedItemwt({ Karigr: filteredData[index]?.ID, today });
+  };
+  const handleClose = () => {
+  setParams({...params, showModal:false});
+};
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
       <Row style={{ marginTop: "60px", marginLeft: "3px", width: "98%" }}>
         {/* Header Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <div className="d-flex justify-content-between align-items-center">
-            <h5>Order Summary</h5>
+            <h5>Artisan Wise Regular Order Report</h5>
             <button
               className="btn"
               style={{
@@ -156,15 +181,15 @@ function RegularOrderWeight() {
                 fontWeight: "bold",
               }}
             >
-              Item Code:
+              Karigar Code:
             </label>
-            <div style={{ width: "auto" }}>
+            <div style={{ width: "auto", zIndex: "100" }}>
               <SearchableDropDown2
-                options={SelectItemList}
+                options={SelectArtisanList}
                 handleChange={OnChangeHandler}
-                label="ItemId"
-                selectedVal={params.ItemId} // Pass the selected artisan
-                placeholder="Select Item"
+                label="ArtisanID"
+                selectedVal={params.ArtisanID} // Pass the selected artisan
+                placeholder="Select Karigar"
               />
             </div>
           </div>
@@ -172,17 +197,31 @@ function RegularOrderWeight() {
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div style={{ width: "100%", overflow: "auto", height: "50vh" }}>
+          <div id="table-box" style={{ height: "70vh" }}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}
-              ActionFunc={ActionFunc}
               ActionId={params?.ActionID}
               ChangeHandler={OnChangeHandler}
-              SaveChange={SaveChange}
               onSorting={SortingFunc}
               Col={Col1}
               handleprint={handleprint}
+              isView={true}
+              handleViewClick={handleViewClick}
+            />
+            <ReusableModal
+              show={params?.showModal}
+              handleClose={handleClose}
+              body={
+                <>
+                  <Table tab={ArtwtItem} Col={Col2} />
+                </>
+              }
+              Title={"Items"}
+              isSuccess={false}
+              isPrimary={true}
+              handlePrimary={handleClose} // Optional: Define your primary action
+              PrimaryButtonName="Close"
             />
           </div>
         </Col>
@@ -191,4 +230,4 @@ function RegularOrderWeight() {
   );
 }
 
-export default RegularOrderWeight;
+export default ArtisanWiseWt;

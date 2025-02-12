@@ -18,17 +18,16 @@ const GetReportPdf = (data) => {
 
   // Define proportional widths for each column
   const colWidths = [
-    totalTableWidth * 0.20, // 15% width for Order Date (smaller column)
-    totalTableWidth * 0.20, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.20, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.20, // 25% width for Customer Code
-    totalTableWidth * 0.20, // 25% width for Artisan Code
+    totalTableWidth * 0.50, // 15% width for Order Date (smaller column)
+    totalTableWidth * 0.50, // 35% width for Order Number (larger column)
   ];
 
   // Add title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text("Regular Order Report", pageWidth / 2, 20, { align: "center" });
+  doc.text("Artisan wise Regular Order Report", pageWidth / 2, 20, {
+    align: "center",
+  });
 
   // Set up table
   doc.setFontSize(8);
@@ -60,7 +59,7 @@ const GetReportPdf = (data) => {
   };
 
   // Draw header row
-  const headers = ["Order Date", "Order No", "Product Code", "Artisan Code","Weight"];
+  const headers = [ "Artisan Code","Total pending Weight"];
   let currentX = leftMargin;
   let maxHeaderHeight = 0;
   headers.forEach((header, i) => {
@@ -78,16 +77,14 @@ const GetReportPdf = (data) => {
 
   // Move to data rows
   currentY += maxHeaderHeight;
-
+   console.log(data);
   // Draw data rows for each item in the array
   data.forEach((item) => {
     currentX = leftMargin;
+    console.log(item)
     const values = [
-      moment(item.OrderDate).format("DD/MM/YYYY") || "",
-      item.Orderno || "",
-      item.Itemcode || "",
-      item.Karigr || "",
-      item.wt || "",
+      item?.code || "",
+      item?.totwt || "",
     ];
 
     let maxDataHeight = 0;

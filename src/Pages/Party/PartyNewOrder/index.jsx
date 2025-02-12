@@ -302,13 +302,13 @@ function RegularOrder() {
   }, [isPartyOrderLoading, PartyOrderSuccess, PartyOrderError]);
 
   return (
-    <div style={{ width: "100%", marginTop: "5px", paddingLeft: "20px" }}>
+    <div style={{ width: "100%", paddingLeft: "20px",marginTop:"5px" }}>
       <ToastContainer />
       <Row style={{ width: "100%" }}>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <div>
             <h5>Party Order</h5>
-            <hr />
+            <hr className="my-2"/>
           </div>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -352,7 +352,7 @@ function RegularOrder() {
             variant="success"
             onClick={(e) => SubmitHandler(e)}
           >
-            Add
+            Place Order
           </Button>
         </Col>
       </Row>

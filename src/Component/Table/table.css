@@ -1,9 +1,10 @@
 .table-wrapper {
   max-height: 360px !important;
   padding: 0 20px;
-  overflow-y: auto !important;
+  overflow: auto !important;
   display: block;
 }
+
 tbody tr td{
   color: #252525!important;
   font-size: smaller;

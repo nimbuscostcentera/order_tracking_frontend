@@ -14,6 +14,8 @@ import GetReportPdf from "./getReportPdf";
 import useRegularFetch from "../../../store/useRegularFetch";
 import useFetchItem from "../../../store/useFetchItem";
 import useFetchRegularByWt from "../../../store/useFetchRegularByWt";
+import useFetchItemArtisian from "../../../store/useFetchItemArtisian";
+import ReusableModal from "../../../Component/Modal";
 
 function RegularOrderWeight() {
   // State variables
@@ -22,9 +24,12 @@ function RegularOrderWeight() {
     IsAction: false,
     printId: -1,
     ItemId: null,
+    viewIndex: null
   });
 
   const [filteredData, setFilteredData] = useState([]);
+  const [detailData, setDetailData] = useState([]);
+    const [showModal, setShowModal] = useState(false);
 
   // Store data from Zustand
   const { user } = useFetchAuth();
@@ -35,11 +40,21 @@ function RegularOrderWeight() {
     fetchRegularByWtMaster,
     RegularByWtList,
   } = useFetchRegularByWt();
+  const {
+    fetchItemArtisianMaster,
+    ItemArtisianError,
+    isItemArtisianLoading,
+    ItemArtisianList,
+  } = useFetchItemArtisian();
 
   // Column definitions for the table
   const Col1 = [
     { headername: "Item Code", fieldname: "Itemcode", type: "String" },
     { headername: "Total Weight", fieldname: "totwt", type: "number" },
+  ];
+  const Col2 = [
+    { headername: "Artisian Name", fieldname: "NAME", type: "String" },
+    { headername: "Artisian Code", fieldname: "CODE", type: "String" },
   ];
 
   // All function
@@ -57,7 +72,17 @@ function RegularOrderWeight() {
     }
     setFilteredData(result);
   };
+    const handleClose = () => setShowModal(false);
+  const handleViewClick = (index) => {
+    setParams((prev) => ({ ...prev, viewIndex: index }));
+    const data = filteredData[index];
+    console.log(data);
+    const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    fetchItemArtisianMaster({ Item: data.ID, today });
 
+    // setdetailData(data);
+    setShowModal(true);
+  };
   const OnChangeHandler = (e) => {
     let key = e.target.name;
     let value = e.target.value;
@@ -108,7 +133,11 @@ const filterCustomerData = () => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     fetchRegularByWtMaster({ today }); // Add other fields as required
   }, [user]);
-
+// console.log(ItemArtisianList);
+  useEffect(() => {
+    // console.log(ItemArtisianList);
+    setDetailData(ItemArtisianList);
+  }, [ItemArtisianList]);
   useEffect(() => {
     filterCustomerData();
   }, [RegularByWtList, params.ItemId]);
@@ -189,6 +218,23 @@ const filterCustomerData = () => {
               onSorting={SortingFunc}
               Col={Col1}
               handleprint={handleprint}
+              isView={true}
+              viewPref={"Item"}
+              handleViewClick={handleViewClick}
+            />
+            <ReusableModal
+              show={showModal}
+              handleClose={handleClose}
+              body={
+                <>
+                  <Table tab={detailData} onSorting={SortingFunc} Col={Col2} />
+                </>
+              }
+              Title={"Artisian Name"}
+              isSuccess={false}
+              isPrimary={true}
+              handlePrimary={handleClose} // Optional: Define your primary action
+              PrimaryButtonName="Close"
             />
           </div>
         </Col>

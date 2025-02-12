@@ -14,7 +14,7 @@ import useFetchCust from "../../../store/useFetchCust";
 import GetReportPdf from "./getReportPdf";
 import useRegularFetch from "../../../store/useRegularFetch";
 import useFetchItem from "../../../store/useFetchItem";
-
+import "./report.css"
 function RegularReport() {
   // State variables
   const [params, setParams] = useState({
@@ -274,13 +274,7 @@ const filterCustomerData = () => {
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div
-            style={{
-              width: "100%",
-              overflow: "auto",
-              height: "65vh",
-            }}
-          >
+          <div id="table-box" style={{height:"70vh"}}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

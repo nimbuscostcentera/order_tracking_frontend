@@ -122,7 +122,7 @@ function ItemTable({setIsDisable}) {
       }
     }, [isItemEditLoading, ItemEditSuccess, ItemEditError]);
   return (
-    <div style={{ width: "auto", overflow: "auto" ,height:"50vh"}}>
+    <div id="table-box" style={{ height: "50vh" }}>
       {!isItemLoading &&
       Array.isArray(filteredData) &&
       filteredData.length > 0 ? (

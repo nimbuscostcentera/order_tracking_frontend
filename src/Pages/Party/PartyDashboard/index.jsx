@@ -19,12 +19,9 @@ function PartyDashboard() {
           style={{ paddingLeft: "15px", margin: "0px" }}
         >
           <div className="d-flex justify-content-between">
-            <div>
-              {" "}
               <h5>Party Order Dashboard</h5>
-            </div>
           </div>
-          <hr style={{ marginTop: "2px" }} />
+          <hr className='mt-1 mb-2'/>
         </Col>
         <Col
           xs={12}
@@ -42,7 +39,6 @@ function PartyDashboard() {
           md={12}
           lg={12}
           xl={12}
-          style={{ padding: "0px", margin: "0px" }}
         >
           <PartyOrder />
         </Col>

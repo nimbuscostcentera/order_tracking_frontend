@@ -22,7 +22,6 @@ function PurityTable({setIsDisable}) {
   const [editedData, setEditedData] = useState({
     id: null,
     PURITY: null,
-    DESCRIPTION: null,
   });
 
   const { user } = useFetchAuth();
@@ -37,8 +36,7 @@ function PurityTable({setIsDisable}) {
   } = useEditPurity();
 
   const Col = [
-    { headername: "PurityCode", fieldname: "PURITY", type: "String" },
-    { headername: "Description", fieldname: "DESCRIPTION", type: "String" }
+    { headername: "Purity", fieldname: "PURITY", type: "String" },
   ];
   
   const ActionFunc = (tabindex) => {
@@ -47,7 +45,6 @@ function PurityTable({setIsDisable}) {
     setEditedData({
       id: PurityList[tabindex]?.id,
       PURITY:PurityList[tabindex]?.PURITY,
-      DESCRIPTION: PurityList[tabindex]?.DESCRIPTION,
     });
   };
 
@@ -94,7 +91,7 @@ function PurityTable({setIsDisable}) {
     }
     if (PurityEditSuccess && !isPurityEditLoading && !PurityEditError) {
       toast.success("Purity Edited Successfully", {position: "top-right",autoClose: 3000});
-      setEditedData({id:null,PURITY:null,DESCRIPTION: null});
+      setEditedData({id:null,PURITY:null});
       SetParams({ ActionID: null, IsAction: null });
       setIsDisable(false)
     }
@@ -106,7 +103,7 @@ function PurityTable({setIsDisable}) {
 
 
   return (
-    <div style={{ width: "auto", overflow: "auto",height:"53vh" }}>
+    <div id="table-box" style={{ height: "50vh" }}>
       <Table
         tab={filteredData || []}
         isAction={params?.IsAction}

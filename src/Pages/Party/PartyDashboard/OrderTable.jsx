@@ -7,14 +7,13 @@ import checkOrder from "../../../GlobalFunctions/Ordercheck.js";
 
 import Table from "../../../Component/Table";
 import ReusableModal from "../../../Component/Modal/index.jsx";
-import usePlaceRegularOrder from "../../../store/usePlaceOrderRegular.js";
 import usePartyList from "../../../store/usePartyList.js";
 import usePlacePartyOrder from "../../../store/usePartyOrderAdd.js";
 import usePartyReceive from "../../../store/usePartyReceive.js";
 import { toast } from "react-toastify";
 import usePartyPrint from "../../../store/usePartyOrderPrint.js";
 import usePartyOrder from "../../../store/usePartyOrder";
-// import GetReportPdf from "../PartyReport/GetReportPdf.js";
+
 import GetPartyPdf from "./GetPartyPdf.js";
 import moment from "moment";
 import useFetchPurity from "../../../store/useFetchPurity.js";
@@ -23,12 +22,14 @@ import EstimateTable from "../../../Component/EstimateTable/index.jsx";
 import useFetchAuth from "../../../store/useFetchAuth.js";
 import useFetchArtisanwiseItem from "../../../store/useFetchArtisanwiseItem.js";
 import usePartyOrderEdit from "../../../store/usePartyOrderEdit.js";
-// import { partyordershow } from "../../../../../tracking-software/src/v1/Controller/Report.Controller.js";
+import { Form, InputGroup } from "react-bootstrap";
+import "./party.css"
 
 function OrderTable() {
   let currentday = moment();
   const [filteredData, setFilteredData] = useState([]);
   const [detailData, setdetailData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   let itemObj = {
     wt: null,
     Itemcode: null,
@@ -82,7 +83,6 @@ function OrderTable() {
     ClearStatePartyOrderEdit,
     PartyOrderEditSuccess,
   } = usePartyOrderEdit();
-
 
   const KarigarReceiveFunc = async (ind) => {
     let res = detailData[ind];
@@ -211,6 +211,19 @@ function OrderTable() {
     setShowModal(true);
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchQuery(value);
+
+    const filtered = PartyOrder.filter((order) =>
+      Object.values(order).some((field) =>
+        field?.toString().toLowerCase().includes(value)
+      )
+    );
+
+    setFilteredData(filtered);
+  };
+
   const ActionFunc = (tabIndex) => {
     setParams((prev) => ({ ...prev, IsAction: true, ActionID: tabIndex }));
     let obj = filteredData[tabIndex];
@@ -296,12 +309,12 @@ function OrderTable() {
     let value = e.target.value;
     ob[colKey] = value;
     setEditData(ar);
-     if (colKey === "Karigr") {
-       setdetailData2([{ rowid: 1 }]);
-     }
+    if (colKey === "Karigr") {
+      setdetailData2([{ rowid: 1 }]);
+    }
   };
-// console.log(EditData,"Edited data")
-// console.log(detailData2,"Detailed  data")
+  // console.log(EditData,"Edited data")
+  // console.log(detailData2,"Detailed  data")
   const HandleEditChange2 = (rowIndex, colKey, e) => {
     let copyarray = [...detailData2];
     setParams({ ...params, IndexRow: rowIndex });
@@ -377,8 +390,6 @@ function OrderTable() {
       });
 
       setParams({ ActionID: -1, IsAction: false, viewIndex: null });
-
-     
     } else if (
       PartyReceiveError &&
       !isPartyReceiveLoading &&
@@ -389,27 +400,27 @@ function OrderTable() {
         autoClose: 3000,
       });
     }
-     ClearAddParty();
+    ClearAddParty();
   }, [isPartyReceiveLoading, PartyReceiveSuccess, PartyReceiveError]);
 
   const handleprint = (ind) => {
     const data = filteredData[ind];
-    // console.log(data,"data")
-    const dataByFilter = PartyOrder.filter((party) => {
-      return party?.Orderno === data?.Orderno;
-    });
-  //  console.log(dataByFilter,"databyfilter")
-    const totalwt = dataByFilter[0]?.Detail?.reduce((accum, data) => {
-      return accum + data.wt;
-    }, 0);
-    const printData = {
-      Orderno: data?.Orderno,
-      OrderDate: data?.OrderDate,
-      Party: data?.Party,
-      Deliverydate: data?.Deliverydate,
-      weight: totalwt.toFixed(3),
-    };
-    GetPartyPdf(printData);
+    console.log(data,"data2")
+    // const dataByFilter = PartyOrder.filter((party) => {
+    //   return party?.Orderno === data?.Orderno;
+    // });
+    // //  console.log(dataByFilter,"databyfilter")
+    // const totalwt = dataByFilter[0]?.Detail?.reduce((accum, data) => {
+    //   return accum + data.wt;
+    // }, 0);
+    // const printData = {
+    //   Orderno: data?.Orderno,
+    //   OrderDate: data?.OrderDate,
+    //   Party: data?.Party,
+    //   Deliverydate: data?.Deliverydate,
+    //   weight: totalwt.toFixed(3),
+    // };
+    GetPartyPdf(data);
   };
 
   useEffect(() => {
@@ -417,7 +428,7 @@ function OrderTable() {
       fetchArtisanwiseItemMaster({ artisanId: EditData[0]?.Karigr });
     }
   }, [EditData[0]?.Karigr]);
-//toaster
+  //toaster
   useEffect(() => {
     if (isPartyOrderEditLoading) {
       toast.play("pleaes wait...", {
@@ -445,91 +456,106 @@ function OrderTable() {
   }, [isPartyOrderEditLoading, PartyOrderEditSuccess, PartyOrderEditError]);
 
   return (
-    <div style={{ width: "auto", overflow: "auto", height: "50vh" }}>
-      <Table
-        tab={filteredData || []}
-        isAction={params?.IsAction}
-        ActionFunc={ActionFunc}
-        ActionId={params?.ActionID}
-        OnChangeHandler={OnChangeHandler}
-        SaveChange={SaveChange}
-        onSorting={SortingFunc}
-        Col={Col}
-        receive={"Rcv"}
-        isEdit={true}
-        isView={true}
-        isPrint={true}
-        handleprint={handleprint}
-        viewPref={"Item"}
-        handleViewClick={handleViewClick}
-        // EditedData={editData}
-      />
-      <ReusableModal
-        show={showModal}
-        handleClose={handleClose}
-        body={
-          <>
-            <Table
-              tab={detailData}
-              onSorting={SortingFunc}
-              Col={Col1}
-              isKarigarButton={true}
-              isIcon={true}
-              KarigarReceiveFunc={KarigarReceiveFunc}
-              receive={"Rcv"}
-            />
-          </>
-        }
-        Title={"Item Details"}
-        isSuccess={false}
-        isPrimary={true}
-        handlePrimary={handleClose} // Optional: Define your primary action
-        PrimaryButtonName="Close"
-      />
-      <ReusableModal
-        show={params?.EditMode}
-        handleClose={HandleEditModeClose} // Close modal
-        body={
-          <div>
-            <div>
-              <EstimateTable
-                columns={EditColMain}
-                rows={EditData}
-                handleChange={HandleEditChange}
-                id={"rid"}
-                // SearchHandler={handleOpen}
+    <div>
+      <InputGroup className="mb-2 mt-0 search-bar" style={{ width: "40%" }}>
+        <InputGroup.Text>
+          <i className="bi bi-search"></i>
+        </InputGroup.Text>
+        <Form.Control
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="custom-search"
+          style={{ boxShadow: "none", outline: "none", borderColor: "#ccc" }}
+        />
+      </InputGroup>
+      <div id="table-box" style={{height:"50vh"}}>
+        <Table
+          tab={filteredData || []}
+          isAction={params?.IsAction}
+          ActionFunc={ActionFunc}
+          ActionId={params?.ActionID}
+          OnChangeHandler={OnChangeHandler}
+          SaveChange={SaveChange}
+          onSorting={SortingFunc}
+          Col={Col}
+          receive={"Rcv"}
+          isEdit={true}
+          isView={true}
+          isPrint={true}
+          handleprint={handleprint}
+          viewPref={"Item"}
+          handleViewClick={handleViewClick}
+          // EditedData={editData}
+        />
+        <ReusableModal
+          show={showModal}
+          handleClose={handleClose}
+          body={
+            <>
+              <Table
+                tab={detailData}
+                onSorting={SortingFunc}
+                Col={Col1}
+                isKarigarButton={true}
+                isIcon={true}
+                KarigarReceiveFunc={KarigarReceiveFunc}
+                receive={"Rcv"}
               />
-            </div>
+            </>
+          }
+          Title={"Item Details"}
+          isSuccess={false}
+          isPrimary={true}
+          handlePrimary={handleClose} // Optional: Define your primary action
+          PrimaryButtonName="Close"
+        />
+        <ReusableModal
+          show={params?.EditMode}
+          handleClose={HandleEditModeClose} // Close modal
+          body={
             <div>
-              <hr />
-              <h6>Edit Order Items</h6>
-              <hr />
-            </div>
-            <div>
-              <EstimateTable
-                columns={EditColDetail}
-                rows={detailData2}
-                handleChange={HandleEditChange2}
-                deleteRow={deleteRow}
-                isDelete={true}
-                id={"rowid"}
-              />
               <div>
-                <button
-                  className="btn btn-success py-1 px-2 float-end"
-                  onClick={addRow}
-                >
-                  Add
-                </button>
+                <EstimateTable
+                  columns={EditColMain}
+                  rows={EditData}
+                  handleChange={HandleEditChange}
+                  id={"rid"}
+                  // SearchHandler={handleOpen}
+                />
+              </div>
+              <div>
+                <hr />
+                <h6>Edit Order Items</h6>
+                <hr />
+              </div>
+              <div>
+                <EstimateTable
+                  columns={EditColDetail}
+                  rows={detailData2}
+                  handleChange={HandleEditChange2}
+                  deleteRow={deleteRow}
+                  isDelete={true}
+                  id={"rowid"}
+                />
+                <div>
+                  <button
+                    className="btn btn-success py-1 px-2 float-end"
+                    onClick={addRow}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        }
-        Title={`Edit Party: ${EditData[0]?.Orderno}`}
-        isPrimary={true}
-        handlePrimary={SaveChange}
-        PrimaryButtonName="Save"
-      />
+          }
+          Title={`Edit Party: ${EditData[0]?.Orderno}`}
+          isPrimary={true}
+          handlePrimary={SaveChange}
+          PrimaryButtonName="Save"
+        />
+      </div>
     </div>
   );
 }

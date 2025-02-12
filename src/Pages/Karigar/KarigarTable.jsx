@@ -10,7 +10,7 @@ import useEditArtisan from "../../store/useEditArtisan.js";
 import { toast } from "react-toastify";
 import useFetchItem from "../../store/useFetchItem.js";
 import PhnoValidation from "../../GlobalFunctions/PhnoValidation.js";
-
+import EmailValidate from "../../../src/GlobalFunctions/EmailValidation"
 function KarigarTable({setIsDisable}) {
   const [editedData, setEditedData] = useState({
     id:null,
@@ -19,6 +19,7 @@ function KarigarTable({setIsDisable}) {
     PHONE: null,
     ADDRESS: null,
     CONTACTPERSON: null,
+    MANAGER_CONTACT:null,
     data: [],
     selectedValue: [],
   });
@@ -38,6 +39,8 @@ function KarigarTable({setIsDisable}) {
     ClearStateEditArtisan,
   } = useEditArtisan();
 
+  console.log(ArtisanList,"artisanlist")
+
   const { ItemList, isItemLoading } = useFetchItem();
   
   const ItemListOption = useMemo(() => {
@@ -52,11 +55,16 @@ function KarigarTable({setIsDisable}) {
     { headername: "Artisan Code", fieldname: "CODE", type: "String" },
     { headername: "Name", fieldname: "NAME", type: "String" },
     { headername: "Contact No.", fieldname: "PHONE", type: "number" },
-    { headername: "Address", fieldname: "ADDRESS", type: "String" },
+    { headername: "Email", fieldname: "ADDRESS", type: "String" },
     {
-      headername: "Contact Person",
+      headername: "Manager Name",
       fieldname: "CONTACTPERSON",
       type: "String",
+    },
+    {
+      headername: "Manager Number",
+      fieldname: "MANAGER_CONTACT",
+      type: "number",
     },
     // { headername: "Item Codes", fieldname: "ITEMCODES", type: "String" },
     {
@@ -94,6 +102,7 @@ function KarigarTable({setIsDisable}) {
       PHONE: filteredData[tabIndex]?.PHONE,
       ADDRESS: filteredData[tabIndex]?.ADDRESS,
       CONTACTPERSON: filteredData[tabIndex]?.CONTACTPERSON,
+      MANAGER_CONTACT:filteredData[tabIndex]?.MANAGER_CONTACT,
       data: arr,
       selectedValue: arr2,
     });
@@ -127,6 +136,14 @@ function KarigarTable({setIsDisable}) {
   };
 
   const SaveChange = () => {
+
+    if(!EmailValidate(editedData.ADDRESS)){
+      toast.error("Invalid Email!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     // console.log("Saving changes...", editedData);
     if (!/^\d{10}$/.test(editedData.PHONE)) {
       toast.error("Phone number must be exactly 10 digits!", {
@@ -142,6 +159,20 @@ function KarigarTable({setIsDisable}) {
      });
      return;
   }
+  if (!/^\d{10}$/.test(editedData.MANAGER_CONTACT)) {
+    toast.error("Phone number must be exactly 10 digits!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+    return;
+  }
+if (!PhnoValidation(editedData.MANAGER_CONTACT)) {
+   toast.error("Invalid Phone Number!", {
+     position: "top-right",
+     autoClose: 3000,
+   });
+   return;
+}
     EditArtisanFunc(editedData);
   };
 
@@ -169,6 +200,7 @@ function KarigarTable({setIsDisable}) {
         PHONE: null,
         ADDRESS: null,
         CONTACTPERSON: null,
+        MANAGER_CONTACT:null,
         ITEMCODES: null,
         data: [],
         selectedValue: [],
@@ -204,7 +236,7 @@ function KarigarTable({setIsDisable}) {
   }, [ArtisanEditSuccess, KarigarRegSuccess]);
 
   return (
-    <div style={{ width: "auto", overflow: "auto", height: "50vh" }}>
+    <div id="table-box" style={{ height: "50vh" }}>
       {!isArtisanLoading &&
       Array.isArray(filteredData) &&
       filteredData.length > 0 ? (

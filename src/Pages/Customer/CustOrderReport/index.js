@@ -12,6 +12,7 @@ import SortArrayByDate from "../../../GlobalFunctions/SortArrayByDate";
 import SortArrayByNumber from "../../../GlobalFunctions/SortArrayByNumber";
 import useFetchCust from "../../../store/useFetchCust";
 import GetReportPdf from "./getReportPdf";
+import "./report.css";
 
 function CustReport() {
   // State variables
@@ -64,8 +65,8 @@ function CustReport() {
   };
 
   const handleprint = () => {
-      GetReportPdf(filteredData);
-console.log(filteredData);
+    GetReportPdf(filteredData);
+    console.log(filteredData);
   };
 
   // Artisan list for dropdown
@@ -96,7 +97,7 @@ console.log(filteredData);
   }, [choice]);
 
   const filterCustomerData = () => {
-    let transformlist=[...CustomerDashList] || []
+    let transformlist = [...CustomerDashList] || [];
     if (params.ArtisanId) {
       transformlist = transformlist.filter(
         (customer) => customer.Artisan === params.ArtisanId
@@ -112,14 +113,13 @@ console.log(filteredData);
         transformlist = transformlist.filter(
           (customer) => customer.Despatch === null
         );
-      
       } else if (params.ChoiceId === "Done") {
         transformlist = transformlist.filter(
           (customer) => customer.Despatch !== null
         );
       }
       setFilteredData(transformlist);
-    } 
+    }
   };
 
   const ActionFunc = () => {};
@@ -135,8 +135,6 @@ console.log(filteredData);
   useEffect(() => {
     filterCustomerData();
   }, [CustomerDashList, params.ArtisanId, params.CustId, params.ChoiceId]);
-
- 
 
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
@@ -255,7 +253,7 @@ console.log(filteredData);
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div style={{ width: "100%", overflow: "auto", height: "50vh" }}>
+          <div id="table-box" style={{height:"70vh"}}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

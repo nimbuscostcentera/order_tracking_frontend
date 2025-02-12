@@ -20,10 +20,13 @@ import EstimateTable from "../../../Component/EstimateTable/index.jsx";
 import Table from "../../../Component/Table";
 import useRegularOrderEdit from "../../../store/useRegularOrderEdit.js";
 import usePlaceRegularOrder from "../../../store/usePlaceOrderRegular.js";
+import { Form, InputGroup } from "react-bootstrap";
 
 function OrderTable() {
   const [filteredData, setFilteredData] = useState([]);
   const [detailData, setdetailData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [modalSearchQuery,setModalSearchQuery]=useState("")
   let itemObj = {
     wt: null,
     Itemcode: null,
@@ -318,6 +321,19 @@ function OrderTable() {
     UpdateRegularOrder(object);
     HandleEditModeClose();
   };
+
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchQuery(value);
+
+    const filtered = RegularList.filter((order) =>
+      Object.values(order).some((field) =>
+        field?.toString().toLowerCase().includes(value)
+      )
+    );
+
+    setFilteredData(filtered);
+  };
   //useEffects rcv toaster
   useEffect(() => {
     if (
@@ -435,91 +451,129 @@ function OrderTable() {
     RegularOrderEditSuccess,
     RegularOrderEditError,
   ]);
+
+  console.log(detailData,"detaildata")
   return (
-    <div style={{ width: "auto", overflow: "auto", height: "50vh" }}>
+    <div>
       <ToastContainer />
-      <Table
-        tab={filteredData || []}
-        isAction={params?.IsAction}
-        ActionFunc={ActionFunc}
-        ActionId={params?.ActionID}
-        ChangeHandler={() => {}}
-        SaveChange={SaveChange}
-        onSorting={SortingFunc}
-        Col={Col}
-        isEdit={true}
-        isView={true}
-        viewPref={"Item"}
-        handleViewClick={handleViewClick}
-        isPrint={true}
-        handleprint={handleprint}
-      />
-      <ReusableModal
-        show={showModal}
-        handleClose={handleClose}
-        body={
-          <>
-            <Table
-              tab={detailData}
-              onSorting={SortingFunc}
-              Col={Col1}
-              isKarigarButton={true}
-              isIcon={true}
-              KarigarReceiveFunc={KarigarReceiveFunc}
-              receive={"Rcv"}
-            />
-          </>
-        }
-        Title={"Item Details"}
-        isSuccess={false}
-        isPrimary={true}
-        handlePrimary={handleClose} // Optional: Define your primary action
-        PrimaryButtonName="Close"
-      />
-      <ReusableModal
-        show={params?.EditMode}
-        handleClose={HandleEditModeClose}
-        body={
-          <div>
-            <div>
-              <EstimateTable
-                columns={EditColMain}
-                rows={EditData}
-                handleChange={HandleEditChange}
-                id={"rid"}
+      <InputGroup className="mb-2 search-bar" style={{ width: "40%" }}>
+        <InputGroup.Text>
+          <i className="bi bi-search"></i>
+        </InputGroup.Text>
+        <Form.Control
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="custom-search"
+          style={{ boxShadow: "none", outline: "none", borderColor: "#ccc" }}
+        />
+      </InputGroup>
+      <div id="table-box" style={{height:"50vh"}}>
+        <Table
+          tab={filteredData || []}
+          isAction={params?.IsAction}
+          ActionFunc={ActionFunc}
+          ActionId={params?.ActionID}
+          ChangeHandler={() => {}}
+          SaveChange={SaveChange}
+          onSorting={SortingFunc}
+          Col={Col}
+          isEdit={true}
+          isView={true}
+          viewPref={"Item"}
+          handleViewClick={handleViewClick}
+          isPrint={true}
+          handleprint={handleprint}
+        />{" "}
+        <ReusableModal
+          show={showModal}
+          handleClose={handleClose}
+          body={
+            <>
+              <InputGroup className="mb-3 search-bar" style={{ width: "40%" }}>
+                <InputGroup.Text>
+                  <i className="bi bi-search"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Search..."
+                  value={modalSearchQuery}
+                  onChange={(e) => setModalSearchQuery(e.target.value)}
+                  className="custom-search"
+                  style={{
+                    boxShadow: "none",
+                    outline: "none",
+                    borderColor: "#ccc",
+                  }}
+                />
+              </InputGroup>
+              <Table
+                tab={detailData.filter((item) =>
+                  item.Itemcode.toLowerCase().includes(
+                    modalSearchQuery.toLowerCase()
+                  )
+                )}
+                onSorting={SortingFunc}
+                Col={Col1}
+                isKarigarButton={true}
+                isIcon={true}
+                KarigarReceiveFunc={KarigarReceiveFunc}
+                receive={"Rcv"}
               />
-            </div>
+            </>
+          }
+          Title={"Item Details"}
+          isSuccess={false}
+          isPrimary={true}
+          handlePrimary={handleClose} // Optional: Define your primary action
+          PrimaryButtonName="Close"
+        />
+        <ReusableModal
+          show={params?.EditMode}
+          handleClose={HandleEditModeClose}
+          body={
             <div>
-              <hr />
-              <h6>Edit Order Items</h6>
-              <hr />
-            </div>
-            <div>
-              <EstimateTable
-                columns={EditColDetail}
-                rows={detailData2}
-                handleChange={HandleEditChange2}
-                deleteRow={deleteRow}
-                isDelete={true}
-                id={"rowid"}
-              />
               <div>
-                <button
-                  className="btn btn-success py-1 px-2 float-end"
-                  onClick={addRow}
-                >
-                  Add
-                </button>
+                <EstimateTable
+                  columns={EditColMain}
+                  rows={EditData}
+                  handleChange={HandleEditChange}
+                  id={"rid"}
+                />
+              </div>
+              <div>
+                <hr />
+                <h6>Edit Order Items</h6>
+                <hr />
+              </div>
+              <div>
+                <EstimateTable
+                  columns={EditColDetail}
+                  rows={detailData2}
+                  handleChange={HandleEditChange2}
+                  deleteRow={deleteRow}
+                  isDelete={true}
+                  id={"rowid"}
+                />
+                <div>
+                  <button
+                    className="btn btn-success py-1 px-2 float-end"
+                    onClick={addRow}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        }
-        Title={`Edit Regular: ${EditData[0]?.Orderno}`}
-        isSuccess={false}
-        isPrimary={true}
-        handlePrimary={SaveChange} // Optional: Define your primary action
-        PrimaryButtonName="save"
-      />
+          }
+          Title={`Edit Regular: ${EditData[0]?.Orderno}`}
+          isSuccess={false}
+          isPrimary={true}
+          handlePrimary={SaveChange} // Optional: Define your primary action
+          PrimaryButtonName="save"
+        />
+      </div>
     </div>
   );
 }
