@@ -13,12 +13,12 @@ const SearchableDropDown = ({
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-// console.log(selectedVal,"checkselect")
+  // //console.log(selectedVal,"checkselect")
   const findSelectedValue = () => {
     if (Array.isArray(options) && options.length != 0) {
       let vl = null;
       vl = options?.filter((item) => item?.value == selectedVal);
-      // console.log(vl, options, "check options");
+      // //console.log(vl, options, "check options");
       return vl[0]?.label || "";
     }
   };

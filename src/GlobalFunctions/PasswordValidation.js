@@ -19,7 +19,7 @@ function PasswordValidation(Password) {
   var isSpace = /\s/;
   var Space = isSpace.test(Password);
 
-  // console.log(Num + " " + Upper + " " + Lower + " " + Special + " " + Space);
+  // //console.log(Num + " " + Upper + " " + Lower + " " + Special + " " + Space);
 
   if (Num && Upper && Lower && Special && !Space === true) {
     return true;

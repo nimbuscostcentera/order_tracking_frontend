@@ -7,10 +7,10 @@ const useCustOrder = create((set) => ({
   CustDashloading: false,
   CustDashError: null,
 
-  fetchCustDash: async () => {
+  fetchCustDash: async (userdata) => {
     set({ CustDashloading: true, CustDashError: null }); // Start loading
     try {
-        const result = await axios.post(API);
+        const result = await axios.post(API, userdata);
         const { data } = result;
         const { response } = data;
         set({ CustomerDashList:response, CustDashloading: false }); // Update state with fetched data

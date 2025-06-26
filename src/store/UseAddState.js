@@ -16,8 +16,12 @@ const useAddState = create((set) => ({
         
         set({ AddStateSuccess:response, isAddStateLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ AddStateError: error?.response?.data?.response, isAddStateLoading: false ,AddStateSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        AddStateError: error?.response?.data?.response,
+        isAddStateLoading: false,
+        AddStateSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateAdd: () => {

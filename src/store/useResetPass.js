@@ -8,7 +8,7 @@ const usePassReset = create((set) => ({
   passResetError: null,
 
   passResetFunc: async (userdata) => {
-    console.log(userdata, "resetpass");
+    //console.log(userdata, "resetpass");
     set({
       ispassResetLoading: true,
       passResetError: null,
@@ -17,14 +17,14 @@ const usePassReset = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      console.log(response)
+      //console.log(response)
       set({
         passResetSuccess: response,
         ispassResetLoading: false,
         passResetError: null,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         passResetError: error?.response?.data?.response,
         ispassResetLoading: false,

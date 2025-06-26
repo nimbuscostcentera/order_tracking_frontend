@@ -90,26 +90,26 @@ function RegularOrder() {
 
   const col = [
     {
-      label: "Party code",
+      label: "Party code*",
       key: "PartyCode",
       type: "String",
       SelectOption: true,
       data: Party || [],
       PlaceHolder: "Purity",
-      width: "250px",
+      width: "200px",
     },
     {
-      label: "Purity",
+      label: "Purity*",
       key: "PURITY",
       type: "number",
       SelectOption: true,
       data: Purity || [],
       PlaceHolder: "Purity",
-      width: "250px",
+      width: "200px",
     },
-    { label: "OrderDate", key: "OrderDate", type: "Date" },
+    { label: "OrderDate*", key: "OrderDate", type: "Date" },
     {
-      label: "Karigor Code",
+      label: "Karigar Code*",
       key: "Karigr",
       type: "String",
       AutoSearch: true,
@@ -117,10 +117,9 @@ function RegularOrder() {
       SearchLabel: "CODE",
       PlaceHolder: "Karigar Code",
       data: KarigarList || [],
-      width: "200px",
     },
     {
-      label: "Item",
+      label: "Item*",
       key: "ItemCodes",
       type: "String",
       isTableSelection: true,
@@ -146,32 +145,30 @@ function RegularOrder() {
     const updatedData = [...regularData];
     updatedData[rowIndex][colKey] = e.target.value;
     setRegularData(updatedData);
-     if (colKey === "Karigr") {
-       setRegularData((prev) => [
-         {
-           ...prev[0], // Keep all previous values
-           ItemCodes: null,
-           data: [
-             {
-               ItemCode: null,
-               Item: null,
-               wt: null,
-             },
-           ],
-         },
-       ]);
-
-       setRows([{ rowid: 1 }]);
-     }
-    
-    // console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
+    if (colKey === "Karigr") {
+ 
+      setRegularData((prev) => [
+        {
+          ...prev[0], // Keep all previous values
+          ItemCodes: null,
+          data: [
+            {
+              ItemCode: null,
+              Item: null,
+              wt: null,
+            },
+          ],
+        },
+      ]);
+      setRows([{ rowid: 1 }]);
+    }
+    // //console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
   };
-
 
   const saveItem = () => {
     let copyarray = [...regularData];
     let modifiedObj = copyarray[0];
-    console.log(copyarray, indexRow, "hi");
+    //console.log(copyarray, indexRow, "hi");
     let arr = rows?.map((i) => i?.ItemCode);
     let str = arr.join(", ");
     modifiedObj.ItemCodes = str;
@@ -188,19 +185,31 @@ function RegularOrder() {
     const regexWt = /^\d*\.?\d{0,3}$/;
     const regexAmt = /^\d*\.?\d{0,2}$/;
     const regexWholeNumber = /^\d*$/;
-    if (colKey == "wt" && regexWt.test(e.target.value)) {
-      value = e.target.value;
-      modifiedObj[colKey] = value;
-    }
+    if (regularData[0]?.Karigr == null ||
+      regularData[0]?.Karigr == undefined ||
+      regularData[0]?.Karigr == -1 ||
+      regularData[0]?.Karigr == 0 
+    )
+    {
+      toast.error("Karigar Code is required!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+      }
+      if (colKey == "wt" && regexWt.test(e.target.value)) {
+        value = e.target.value;
+        modifiedObj[colKey] = value;
+      }
     if (colKey !== "wt") {
       value = e.target.value;
       let arrayItem = ItemList?.filter((it) => it.id == value);
       let obj = arrayItem[0];
-      console.log(obj);
+      //console.log(obj);
       let { ITEMCODE } = obj;
       modifiedObj["item"] = value;
       modifiedObj["ItemCode"] = ITEMCODE;
-      console.log(modifiedObj);
+      //console.log(modifiedObj);
     }
     setRows((prev) => copyarray);
   };
@@ -208,16 +217,20 @@ function RegularOrder() {
   const SubmitHandler = (e) => {
     e.preventDefault();
     regularData.data = [...rows];
-    console.log(regularData[0], "regulardata");
-    if(!regularData[0].Karigr || !regularData[0].ItemCodes || !regularData[0].OrderDate ||
-      !regularData[0].PURITY || !regularData[0].PartyCode  
-     ){
-           toast.error("All fields are required!", {
-                  position: "top-right",
-                  autoClose: 3000,
-                });
-                return;   
-     }
+    //console.log(regularData[0], "regulardata");
+    if (
+      !regularData[0].Karigr ||
+      !regularData[0].ItemCodes ||
+      !regularData[0].OrderDate ||
+      !regularData[0].PURITY ||
+      !regularData[0].PartyCode
+    ) {
+      toast.error("All fields are required!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     PlacePartyOrder(regularData[0]);
   };
 
@@ -230,7 +243,7 @@ function RegularOrder() {
   };
 
   const deleteRow = (id) => {
-    console.log(id,"id")
+    //console.log(id,"id")
     let ExistingRows = rows.filter((row) => row.rowid !== id);
     let n = ExistingRows?.length;
     for (let i = 0; i < n; i++) {
@@ -247,7 +260,6 @@ function RegularOrder() {
   //   }
   //   setRows(ExistingRows);
   // };
-
 
   useEffect(() => {
     fetchPurityMaster(user);
@@ -302,13 +314,13 @@ function RegularOrder() {
   }, [isPartyOrderLoading, PartyOrderSuccess, PartyOrderError]);
 
   return (
-    <div style={{ width: "100%", paddingLeft: "20px",marginTop:"5px" }}>
+    <div style={{ width: "100%", paddingLeft: "20px", marginTop: "5px" }}>
       <ToastContainer />
       <Row style={{ width: "100%" }}>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <div>
             <h5>Party Order</h5>
-            <hr className="my-2"/>
+            <hr className="my-2" />
           </div>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>

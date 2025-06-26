@@ -15,9 +15,11 @@ function AuthLayout() {
       style={{ height: "100%", width: "100%", padding: 0, margin: 0 }}
     >
       <NavigationBar />
-      <Row style={{width:"100vw",height:"100vh"}}>
+      <Row style={{ width: "100vw", height: "100vh" }}>
         <Col xl={6} lg={6} md={6} className="vanising-div">
-          <img src={SideImg} width="85%" alt="sideimg" id="sideimg" />
+          <div style={{width:"100%",height:"100%",display:"flex",justifyContent:"center",alignItems:"center"}}>
+            <img src={SideImg} width="85%" alt="sideimg" id="sideimg" />
+          </div>
         </Col>
         <Col
           xl={6}

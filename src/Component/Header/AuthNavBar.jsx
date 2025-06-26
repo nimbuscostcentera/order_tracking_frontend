@@ -43,9 +43,6 @@ function AuthNavBar() {
         <Link to={"/auth/setup"}>
           <i className="bi bi-gear-fill white-icon"></i>
         </Link>
-        <Link>
-          <i className="bi bi-bell-fill white-icon"></i>
-        </Link>
         <Button
           style={{ padding: 0, margin: 0 }}
           variant="link"

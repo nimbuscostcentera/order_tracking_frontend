@@ -46,10 +46,10 @@ function PartyReport() {
 
   // Column definitions for the table
   const Col1 = [
-    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
     { headername: "OrderNo", fieldname: "Orderno", type: "String" },
+    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
     { headername: "Party Code", fieldname: "Party", type: "String" },
-    { headername: "Artisan  Code", fieldname: "ArtisanCode", type: "String" },
+    { headername: "Karigar  Code", fieldname: "ArtisanCode", type: "String" },
     { headername: "Item Code", fieldname: "itemcode", type: "String" },
     { headername: "Weight", fieldname: "wt", type: "number" },
 
@@ -88,9 +88,9 @@ function PartyReport() {
 
     return data.flatMap((order) => {
       // For each order, create a new object for every detail item
-      return order.Detail.map(({Rcv, itemcode, wt }) => ({
-          ...order,
-          Rcv,
+      return order.Detail.map(({ Rcv, itemcode, wt }) => ({
+        ...order,
+        Rcv,
         itemcode,
         wt,
       }));
@@ -119,9 +119,9 @@ function PartyReport() {
   };
 
   const handleprint = () => {
+    console.log(filteredData);
     GetReportPdf(filteredData);
-console.log(filteredData);
-};
+  };
 
   // Artisan list for dropdown
   const SelectArtisanList = useMemo(() => {
@@ -132,34 +132,25 @@ console.log(filteredData);
     }));
   }, [ArtisanList]);
 
-  // Party list for dropdown
-  // const SelectPartyList = useMemo(() => {
-  //   if (!PartyList) return []; // Ensure ArtisanList is available
-  //   console.log(PartyList)
-  //   return PartyList.map((item) => ({
-  //     label: `${item?.Party}`, // Ensure CODE exists
-  //     value: item?.Party, // Ensure ID exists
-  //   }));
-  // }, [PartyList]);
+
   const SelectPartyList = useMemo(() => {
     if (!PartyOrder) return []; // Ensure PartyList is available
-  
+
     // Use Set to store unique parties based on the Party field
     const uniqueParties = [
       ...new Set(
         PartyOrder.map((item) => item?.Party) // Get unique Party values
       ),
     ];
-  
-    console.log(uniqueParties); // Check unique parties
-  
+
+    //console.log(uniqueParties); // Check unique parties
+
     // Return dropdown options from unique parties
     return uniqueParties.map((party) => ({
-      label: party,    // Label to display in dropdown
-      value: party,    // Value of the dropdown item
+      label: party, // Label to display in dropdown
+      value: party, // Value of the dropdown item
     }));
   }, [PartyOrder]);
-  
 
   // Choice list for dropdown
   const SelectChoiceList = useMemo(() => {
@@ -173,11 +164,11 @@ console.log(filteredData);
   const filterCustomerData = () => {
     // Transform the data first
     let transformedList = transformData(PartyOrder);
-console.log(transformedList);
+    //console.log(transformedList);
     if (params.ArtisanId) {
-    transformedList = transformedList.filter(
-      (customer) => customer.ArtisanCode === params.ArtisanId
-    );
+      transformedList = transformedList.filter(
+        (customer) => customer.ArtisanCode === params.ArtisanId
+      );
     }
     if (params.PartyId) {
       transformedList = transformedList.filter(
@@ -193,12 +184,12 @@ console.log(transformedList);
       transformedList = transformedList.filter(
         (customer) => customer.Rcv === null
       );
-    } else if(params.ChoiceId === "Done"){
+    } else if (params.ChoiceId === "Done") {
       transformedList = transformedList.filter(
         (customer) => customer.Rcv !== null
       );
     }
-  setFilteredData(transformedList); // Reset to full list if no artisan selected
+    setFilteredData(transformedList); // Reset to full list if no artisan selected
   };
 
   const ActionFunc = () => {};
@@ -207,9 +198,9 @@ console.log(transformedList);
   // useEffects
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-    fetchPartyOrder({user,today});
+    fetchPartyOrder({ user, today });
     fetchArtisanMaster();
-    fetchItemMaster(user)
+    fetchItemMaster(user);
   }, [user]);
 
   // useEffect(()=>{
@@ -219,8 +210,6 @@ console.log(transformedList);
   useEffect(() => {
     filterCustomerData();
   }, [PartyOrder, params.ArtisanId, params.PartyId, params.ChoiceId]);
-
- 
 
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
@@ -295,7 +284,7 @@ console.log(transformedList);
                 fontWeight: "bold",
               }}
             >
-              Artisan Code:
+              Karigar Code:
             </label>
             <div style={{ width: "auto", zIndex: "95" }}>
               <SearchableDropDown2
@@ -303,7 +292,7 @@ console.log(transformedList);
                 handleChange={OnChangeHandler}
                 label="ArtisanId"
                 selectedVal={params.ArtisanId} // Pass the selected artisan
-                placeholder="Select Artisan"
+                placeholder="Select Karigar"
               />
             </div>
           </div>
@@ -336,7 +325,7 @@ console.log(transformedList);
         </Col>
 
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div id="table-box" style={{height:"70vh"}}>
+          <div id="table-box" style={{ height: "70vh" }}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

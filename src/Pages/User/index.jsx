@@ -3,9 +3,6 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import useAddCity from "../../store/useAddCity";
-import useFetchAuth from "../../store/useFetchAuth";
-
 // import CityTable from "./CityTable";
 import UserTable from "./UserTable";
 import useAddUser from "../../store/useAddUser";
@@ -16,11 +13,11 @@ function UserListEdit() {
   const [CustData, setCustData] = useState({
     UserName: null,
     Phonenumber: null,
-    Utype:null,
-    password:null
+    Utype: null,
+    password: null,
   });
   const [isDisable, setIsDisable] = useState(false);
-  // console.log(CustData);
+  // //console.log(CustData);
   // const { user } = useFetchAuth();
   const {
     InsertUser,
@@ -29,47 +26,52 @@ function UserListEdit() {
     AddUserError,
     ClearStateUserAdd,
   } = useAddUser();
-   const utypeOptions = [
-     {
-       label: "Admin",
-       value: 1,
-     },
-     {
-       label: "User",
-       value: 2,
-     },
-   ];
+  const utypeOptions = [
+    {
+      label: "1 : Admin",
+      value: 1,
+    },
+    {
+      label: "2 : User",
+      value: 2,
+    },
+  ];
 
   const OnChangeHandler = (e) => {
-    // console.log(e);
+    // //console.log(e);
     let key = e.target.name;
     let value = e.target.value;
     setCustData((prev) => ({ ...prev, [key]: value }));
   };
   const SaveData = () => {
-    // console.log(CustData,"userdata")
-     if (!CustData.UserName || !CustData.password || !CustData.Phonenumber || !CustData.Utype) {
-          toast.error("All fields are required! ", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-          return;
-        }
+    // //console.log(CustData,"userdata")
+    if (
+      !CustData.UserName ||
+      !CustData.password ||
+      !CustData.Phonenumber ||
+      !CustData.Utype
+    ) {
+      toast.error("All fields are required! ", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
-         if (!/^\d{10}$/.test(CustData.Phonenumber)) {
-                  toast.error("Phone number must be exactly 10 digits!", {
-                    position: "top-right",
-                    autoClose: 3000,
-                  });
-                  return;
-                }
-              if (!PhnoValidation(CustData.Phonenumber)) {
-                 toast.error("Invalid Phone Number!", {
-                   position: "top-right",
-                   autoClose: 3000,
-                 });
-                 return;
-              }
+    if (!/^\d{10}$/.test(CustData.Phonenumber)) {
+      toast.error("Phone number must be exactly 10 digits!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!PhnoValidation(CustData.Phonenumber)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     InsertUser({ ...CustData });
   };
 
@@ -91,8 +93,8 @@ function UserListEdit() {
       setCustData({
         UserName: null,
         Phonenumber: null,
-        Utype:null,
-        password:null
+        Utype: null,
+        password: null,
       });
     }
     if (AddUserError) {
@@ -104,7 +106,7 @@ function UserListEdit() {
     }
     ClearStateUserAdd();
   }, [isAddUserLoading, AddUserSuccess, AddUserError]);
-  console.log(isAddUserLoading, "loading");
+  //console.log(isAddUserLoading, "loading");
 
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
@@ -156,9 +158,9 @@ function UserListEdit() {
                     <i className="bi bi-person-circle"></i>
                   </th>
                   <th>Name*</th>
-                  <th>Phone Number</th>
+                  <th>Phone Number*</th>
                   <th>Password*</th>
-                  <th>User Type</th>
+                  <th>User Type*</th>
                 </tr>
               </thead>
               <tbody>
@@ -221,16 +223,27 @@ function UserListEdit() {
         </Col>
         <Col xs={12} sm={12} md={2} lg={2} xl={2}>
           <div className="d-flex justify-content-start align-items-center mt-2">
-            <Button variant="success" onClick={() => SaveData()} disabled={isDisable}>
-              {isAddUserLoading===true ? "Loading..." : "Add"}
+            <Button
+              variant="success"
+              onClick={() => SaveData()}
+              disabled={isDisable}
+            >
+              {isAddUserLoading === true ? "Loading..." : "Add"}
             </Button>
           </div>
         </Col>
-        <Col  xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div>
-            <hr className="my-2" />
-            <h5>Edit City</h5>
-            <hr className="my-2" />
+        <Col xs={12} sm={12} md={12} lg={12} xl={12}>
+          <div className="p-3 rounded shadow bg-light">
+            <hr className="my-2 border-primary" />
+            <div className="d-flex justify-content-between align-items-center">
+              <h5 >Edit City</h5>
+              <div className="badge bg-secondary px-3 py-2 shadow-sm">
+                <span className="fw-semibold text-white">1 : Admin</span>
+                &nbsp;&nbsp;
+                <span className="fw-semibold text-white">2 : User</span>
+              </div>
+            </div>
+            <hr className="my-2 border-primary" />
           </div>
         </Col>
         <Col
@@ -241,7 +254,7 @@ function UserListEdit() {
           xl={12}
           style={{ paddingLeft: "15px" }}
         >
-          <UserTable isDisable={isDisable} setIsDisable={setIsDisable}/>
+          <UserTable isDisable={isDisable} setIsDisable={setIsDisable} />
         </Col>
       </Row>
     </Container>

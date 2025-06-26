@@ -3,13 +3,13 @@ import MaxLengthofID from "./MaxLengthofID";
 
 function PassportValidation(num) {
   var isNum = /^[A-PR-WY-Z][1-9]\d\s?\d{4}[1-9]$/;
-  console.log(num,"pass");
+  //console.log(num,"pass");
   var Num = isNum.test(num);
   if (Num) {
     return true;
   } else {
     return false;
-  } console.log(Num, "I AM IN GLOBAL");
+  } //console.log(Num, "I AM IN GLOBAL");
 }
  
 export default PassportValidation;

@@ -56,35 +56,32 @@ function StateTable({setIsDisable}) {
       DESCRIPTION: StateList[tabindex]?.DESCRIPTION,
     });
   };
-  const SortingFunc=(header,type)=>{
-    console.log(header,type,"sorttable")
-    const currentOrder = checkOrder(filteredData,header);
-    const newOrder=currentOrder === "Asc" ? "Desc" : "Asc";
+  const SortingFunc = (header, type) => {
+    //console.log(header,type,"sorttable")
+    const currentOrder = checkOrder(filteredData, header);
+    const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
     let result;
-    if (type === "String"
-    ) {
-   result=  SortArrayByString(newOrder, filteredData, header);
-      console.log(result,"result") 
+    if (type === "String") {
+      result = SortArrayByString(newOrder, filteredData, header);
+      //console.log(result,"result")
     } else if (type === "Date") {
-      // console.log(type)
-     result=SortArrayByDate(newOrder, filteredData, header);
-     console.log(result,"result date")
-   
-    } else if(type === "number") {
-       result=SortArrayByNumber(newOrder, filteredData, header);
-       
+      // //console.log(type)
+      result = SortArrayByDate(newOrder, filteredData, header);
+      //console.log(result,"result date")
+    } else if (type === "number") {
+      result = SortArrayByNumber(newOrder, filteredData, header);
     }
-    setFilteredData(result)
+    setFilteredData(result);
   };
-  const OnChangeHandler = (index,e) => {
+  const OnChangeHandler = (index, e) => {
     let key = e.target.name;
     let value = e.target.value;
-    console.log(key,value);
-    
+    //console.log(key,value);
+
     setEditedData({ ...editedData, [key]: value });
   };
-  const SaveChange = () => { 
-    console.log(editedData);
+  const SaveChange = () => {
+    //console.log(editedData);
     EditStateFunc(editedData);
   };
 

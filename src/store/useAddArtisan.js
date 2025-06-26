@@ -16,10 +16,10 @@ const useAddArtisan = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      console.log(response);
+      //console.log(response);
       set({ KarigarRegSuccess: response, isKarigarRegLoading: false }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         KarigarRegError: error?.response?.data?.response,
         isKarigarRegLoading: false,

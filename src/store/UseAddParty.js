@@ -16,8 +16,12 @@ const useAddParty = create((set) => ({
         
         set({PartyRegSuccess:response, isPartyRegLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({PartyRegError: error?.response?.data?.response, isPartyRegLoading: false ,PartyRegSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        PartyRegError: error?.response?.data?.response,
+        isPartyRegLoading: false,
+        PartyRegSuccess: null,
+      }); // Handle errors
     }
   },
   ClearAddParty: () => {

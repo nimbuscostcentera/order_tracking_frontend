@@ -23,13 +23,16 @@ import useFetchAuth from "../../../store/useFetchAuth.js";
 import useFetchArtisanwiseItem from "../../../store/useFetchArtisanwiseItem.js";
 import usePartyOrderEdit from "../../../store/usePartyOrderEdit.js";
 import { Form, InputGroup } from "react-bootstrap";
-import "./party.css"
+import "./party.css";
 
 function OrderTable() {
   let currentday = moment();
   const [filteredData, setFilteredData] = useState([]);
   const [detailData, setdetailData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalSearchQuery, setModalSearchQuery] = useState("");
+
+  const [originalOrder, setOriginalOrder] = useState([]);
   let itemObj = {
     wt: null,
     Itemcode: null,
@@ -153,7 +156,7 @@ function OrderTable() {
       isNotEditable: true,
     },
     {
-      headername: "Karigor Code",
+      headername: "Karigar Code",
       fieldname: "ArtisanCode",
       type: "String",
       isNotEditable: true,
@@ -169,7 +172,7 @@ function OrderTable() {
       PlaceHolder: "Purity",
     },
     {
-      label: "Karigor Code",
+      label: "Karigar Code",
       key: "Karigr",
       type: "String",
       AutoSearch: true,
@@ -211,18 +214,20 @@ function OrderTable() {
     setShowModal(true);
   };
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchQuery(value);
+ const handleSearch = (e) => {
+   const value = e.target.value.toLowerCase();
+   setSearchQuery(value);
+   // Extract valid field names from the Col array
+   const validFields = Col.map((col) => col.fieldname);
 
-    const filtered = PartyOrder.filter((order) =>
-      Object.values(order).some((field) =>
-        field?.toString().toLowerCase().includes(value)
-      )
-    );
+   const filtered = PartyOrder.filter((order) =>
+     validFields.some((field) =>
+       order[field]?.toString().toLowerCase().includes(value)
+     )
+   );
 
-    setFilteredData(filtered);
-  };
+   setFilteredData(filtered);
+ };
 
   const ActionFunc = (tabIndex) => {
     setParams((prev) => ({ ...prev, IsAction: true, ActionID: tabIndex }));
@@ -249,8 +254,15 @@ function OrderTable() {
       };
       return obj;
     });
-    setdetailData2((prev) => itemdata);
+    setdetailData2(itemdata);
+    console.log(itemdata);
     HandleEditModeOpen();
+  };
+
+  const applyFilter = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+    // Store the current visible order
+    setOriginalOrder(newFilteredData.map((row) => row.id));
   };
   const SortingFunc = (header, type) => {
     if (!filteredData || filteredData.length === 0) {
@@ -264,7 +276,7 @@ function OrderTable() {
       if (params.viewIndex != null) {
         result = SortArrayByString(
           newOrder,
-          filteredData[params.viewIndex].Detail,
+          filteredData,
           header
         );
       } else {
@@ -276,6 +288,34 @@ function OrderTable() {
       result = SortArrayByNumber(newOrder, filteredData, header);
     }
     setFilteredData(result);
+    applyFilter(result);
+  };
+
+  const SortingFuncSub = (header, type) => {
+    if (!detailData || detailData.length === 0) {
+      // console.error("No data to sort");
+      return;
+    }
+    //console.log(detailData, header, type, "fnd");
+
+    const currentOrder = checkOrder(detailData, header);
+    const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
+
+    let result;
+    if (type === "String") {
+      //console.log("In string");
+      if (params.viewIndex != null) {
+        result = SortArrayByString(newOrder, detailData, header);
+      } else {
+        result = SortArrayByString(newOrder, detailData, header);
+      }
+    } else if (type === "Date") {
+      result = SortArrayByDate(newOrder, detailData, header);
+    } else if (type === "number") {
+      result = SortArrayByNumber(newOrder, detailData, header);
+    }
+
+    setdetailData(result);
   };
 
   const addRow = () => {
@@ -313,8 +353,7 @@ function OrderTable() {
       setdetailData2([{ rowid: 1 }]);
     }
   };
-  // console.log(EditData,"Edited data")
-  // console.log(detailData2,"Detailed  data")
+  
   const HandleEditChange2 = (rowIndex, colKey, e) => {
     let copyarray = [...detailData2];
     setParams({ ...params, IndexRow: rowIndex });
@@ -333,7 +372,7 @@ function OrderTable() {
       modifiedObj["Item"] = value;
       modifiedObj["Itemcode"] = ITEMCODE;
     }
-    setdetailData2((prev) => copyarray);
+    setdetailData2(copyarray);
   };
   const OnChangeHandler = (e) => {
     let key = e.target.name;
@@ -347,7 +386,7 @@ function OrderTable() {
       ...EditData[0],
       data: detailData2,
     };
-    // console.log(object,"Final object")
+    // //console.log(object,"Final object")
     UpdatePartyOrder(object);
     HandleEditModeClose();
   };
@@ -360,8 +399,22 @@ function OrderTable() {
   }, [PartyOrderSuccess, PartyReceiveSuccess, PartyOrderEditSuccess]);
 
   useEffect(() => {
+    // if (PartyOrder?.length > 0) {
+    //   setFilteredData(PartyOrder); // Properly update filteredData
+    // }
     if (PartyOrder?.length > 0) {
-      setFilteredData(PartyOrder); // Properly update filteredData
+      let updatedData = PartyOrder.map((party) => ({
+        ...party,
+      }));
+
+      // Ensure the order remains the same
+      if (originalOrder.length > 0) {
+        updatedData = originalOrder
+          .map((id) => updatedData.find((row) => row.id === id))
+          .filter(Boolean);
+      }
+
+      setFilteredData(updatedData);
     }
   }, [PartyOrder, PartyReceiveSuccess, PartyOrderEditSuccess]);
 
@@ -371,6 +424,15 @@ function OrderTable() {
       fetchPartyData({ today }); // Refetch RegularList after update
       setShowModal(false); // Close the modal after success
     }
+
+    if (originalOrder.length > 0 && PartyOrder?.length > 0) {
+      const sortedData = originalOrder
+        .map((id) => PartyOrder.find((row) => row.id === id))
+        .filter(Boolean);
+
+      setFilteredData(sortedData);
+    }
+
   }, [PartyReceiveSuccess]);
 
   useEffect(() => {
@@ -405,23 +467,11 @@ function OrderTable() {
 
   const handleprint = (ind) => {
     const data = filteredData[ind];
-    console.log(data,"data2")
-    // const dataByFilter = PartyOrder.filter((party) => {
-    //   return party?.Orderno === data?.Orderno;
-    // });
-    // //  console.log(dataByFilter,"databyfilter")
-    // const totalwt = dataByFilter[0]?.Detail?.reduce((accum, data) => {
-    //   return accum + data.wt;
-    // }, 0);
-    // const printData = {
-    //   Orderno: data?.Orderno,
-    //   OrderDate: data?.OrderDate,
-    //   Party: data?.Party,
-    //   Deliverydate: data?.Deliverydate,
-    //   weight: totalwt.toFixed(3),
-    // };
-    GetPartyPdf(data);
+    console.log(data);
+    GetPartyPdf([data]);
   };
+
+  //console.log(detailData)
 
   useEffect(() => {
     if (EditData[0]?.Karigr) {
@@ -470,7 +520,7 @@ function OrderTable() {
           style={{ boxShadow: "none", outline: "none", borderColor: "#ccc" }}
         />
       </InputGroup>
-      <div id="table-box" style={{height:"50vh"}}>
+      <div id="table-box" style={{ height: "50vh" }}>
         <Table
           tab={filteredData || []}
           isAction={params?.IsAction}
@@ -494,9 +544,35 @@ function OrderTable() {
           handleClose={handleClose}
           body={
             <>
+              <InputGroup className="mb-3 search-bar" style={{ width: "40%" }}>
+                <InputGroup.Text>
+                  <i className="bi bi-search"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Search..."
+                  value={modalSearchQuery}
+                  onChange={(e) => setModalSearchQuery(e.target.value)}
+                  className="custom-search"
+                  style={{
+                    boxShadow: "none",
+                    outline: "none",
+                    borderColor: "#ccc",
+                  }}
+                />
+              </InputGroup>
               <Table
-                tab={detailData}
-                onSorting={SortingFunc}
+                tab={detailData.filter(
+                  (item) =>
+                    item.itemcode
+                      .toLowerCase()
+                      .includes(modalSearchQuery.toLowerCase()) || // Search by Item Code
+                    item.description
+                      .toLowerCase()
+                      .includes(modalSearchQuery.toLowerCase()) || // Search by Description
+                    item.wt.toString().includes(modalSearchQuery) // Search by Weight
+                )}
+                onSorting={SortingFuncSub}
                 Col={Col1}
                 isKarigarButton={true}
                 isIcon={true}

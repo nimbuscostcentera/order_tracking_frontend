@@ -29,22 +29,34 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle errors globally
     if (error.response && error.response.status === 401) {
-      console.log("access tokn expire");
-      
-       let res = axios.get(`${process.env.REACT_APP_BASEURL}/auth-routes/fetch-token`, {
-         RefreshToken: localStorage.getItem('refreshToken')
-       });
-      res.then((res) => {
-        if (res.status === 200) {
-          console.log("token refresh success");
-          localStorage.setItem("AccessToken", res.data?.response?.AccessToken);
-          localStorage.setItem("RefreshToken", res.data?.response?.refreshToken);
+      //console.log("access tokn expire");
+
+      let res = axios.get(
+        `${process.env.REACT_APP_BASEURL}/auth-routes/fetch-token`,
+        {
+          RefreshToken: localStorage.getItem("refreshToken"),
         }
-      }).catch((error) => {
-         if (error.response && error.response.status === 402) {
-           window.localStorage.clear();
-           window.location.reload();}
-      })
+      );
+      res
+        .then((res) => {
+          if (res.status === 200) {
+            //console.log("token refresh success");
+            localStorage.setItem(
+              "AccessToken",
+              res.data?.response?.AccessToken
+            );
+            localStorage.setItem(
+              "RefreshToken",
+              res.data?.response?.refreshToken
+            );
+          }
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 402) {
+            window.localStorage.clear();
+            window.location.reload();
+          }
+        });
     }
     return Promise.reject(error);
   }

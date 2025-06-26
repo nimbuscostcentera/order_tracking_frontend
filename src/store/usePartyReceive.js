@@ -10,13 +10,17 @@ const usePartyReceive = create((set) => ({
   InsertReceive: async (userdata) => {
     set({ isPartyReceiveLoading: true,PartyReceiveError: null,PartyReceiveSuccess:null}); // Start loading
     try {
-        const { data } =await axios.post(API, userdata);
-        const { response } = data;
-        console.log(response,"partyreceive")
-        set({PartyReceiveSuccess:response, isPartyReceiveLoading: false }); // Update state with fetched data
+      const { data } = await axios.post(API, userdata);
+      const { response } = data;
+      //console.log(response,"partyreceive")
+      set({ PartyReceiveSuccess: response, isPartyReceiveLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({PartyReceiveError: error?.response?.data?.response, isPartyReceiveLoading: false ,PartyReceiveSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        PartyReceiveError: error?.response?.data?.response,
+        isPartyReceiveLoading: false,
+        PartyReceiveSuccess: null,
+      }); // Handle errors
     }
   },
   ClearAddParty: () => {

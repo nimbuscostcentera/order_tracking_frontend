@@ -14,8 +14,12 @@ const useEditCustomer = create((set) => ({
         const { response } = data;
         set({ CustEditSuccess:response, isCustEditLoading: false,CustEditError:null}); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ CustEditError: error?.response?.data?.response, isCustEditLoading: false ,CustEditSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        CustEditError: error?.response?.data?.response,
+        isCustEditLoading: false,
+        CustEditSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateEditCust: () => {

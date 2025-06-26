@@ -14,8 +14,12 @@ const useAddUser = create((set) => ({
         const { response } = data;
         set({ AddUserSuccess:response, isAddUserLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ AddUserError: error?.response?.data?.response, isAddUserLoading: false ,AddUserSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        AddUserError: error?.response?.data?.response,
+        isAddUserLoading: false,
+        AddUserSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateUserAdd: () => {

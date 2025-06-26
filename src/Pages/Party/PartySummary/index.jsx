@@ -48,10 +48,10 @@ function PartySummary() {
 
   // Column definitions for the table
   const Col1 = [
-    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
     { headername: "OrderNo", fieldname: "Orderno", type: "String" },
+    { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
     { headername: "Party Code", fieldname: "PartyCode", type: "String" },
-    { headername: "Artisan  Code", fieldname: "ArtisanCode", type: "String" },
+    { headername: "Karigar  Code", fieldname: "ArtisanCode", type: "String" },
     { headername: "Weight", fieldname: "totwt", type: "number" },
 
     // {
@@ -83,12 +83,12 @@ function PartySummary() {
   const choice = ["Till Pending", "Done", "All"];
 
   const transformData = (data) => {
-    console.log(data);
-    
+    //console.log(data);
+
     if (!data) {
       return []; // Handle error or empty case
     }
-    return data
+    return data;
   };
 
   // Sorting function
@@ -112,15 +112,16 @@ function PartySummary() {
     setParams({ ...params, [key]: value });
   };
 
-/*************  ✨ Codeium Command ⭐  *************/
-/**
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
  * Handles the print functionality by executing the following steps:
  * 1. Calls PlacePartyPrint with the current date to place the party print order.
  * 2. Generates a report PDF using the filtered data.
-/******  21240ff1-3ed3-4e70-91aa-fa25db4093c3  *******/  const handleprint = () => {
-    GetReportPdf(filteredData);
-console.log(filteredData);
-};
+/******  21240ff1-3ed3-4e70-91aa-fa25db4093c3  *******/ const handleprint =
+    () => {
+      GetReportPdf(filteredData);
+      //console.log(filteredData);
+    };
 
   // Artisan list for dropdown
   const SelectArtisanList = useMemo(() => {
@@ -134,7 +135,7 @@ console.log(filteredData);
   // Party list for dropdown
   // const SelectPartyList = useMemo(() => {
   //   if (!PartyList) return []; // Ensure ArtisanList is available
-  //   console.log(PartyList)
+  //   //console.log(PartyList)
   //   return PartyList.map((item) => ({
   //     label: `${item?.Party}`, // Ensure CODE exists
   //     value: item?.Party, // Ensure ID exists
@@ -142,23 +143,22 @@ console.log(filteredData);
   // }, [PartyList]);
   const SelectPartyList = useMemo(() => {
     if (!PartyOrder) return []; // Ensure PartyList is available
-  
+
     // Use Set to store unique parties based on the Party field
     const uniqueParties = [
       ...new Set(
         PartyOrder.map((item) => item?.Party) // Get unique Party values
       ),
     ];
-  
-    console.log(uniqueParties); // Check unique parties
-  
+
+    //console.log(uniqueParties); // Check unique parties
+
     // Return dropdown options from unique parties
     return uniqueParties.map((party) => ({
-      label: party,    // Label to display in dropdown
-      value: party,    // Value of the dropdown item
+      label: party, // Label to display in dropdown
+      value: party, // Value of the dropdown item
     }));
   }, [PartyOrder]);
-  
 
   // Choice list for dropdown
   const SelectChoiceList = useMemo(() => {
@@ -171,31 +171,33 @@ console.log(filteredData);
 
   const filterCustomerData = () => {
     // Transform the data first
-    let transformedList = [...PartyPrintList]||[];
-console.log(transformedList,"transformlist");
+    let transformedList = [...PartyPrintList] || [];
+    //console.log(transformedList,"transformlist");
     if (params.ArtisanId) {
       transformedList = transformedList.filter(
         (customer) => customer.ArtisanCode === params.ArtisanId
       );
     }
-    if(params.PartyId){
-      transformedList=transformedList.filter((customer)=>customer.PartyCode === params.PartyId)
+    if (params.PartyId) {
+      transformedList = transformedList.filter(
+        (customer) => customer.PartyCode === params.PartyId
+      );
     }
-    if(params.ItemId){
+    if (params.ItemId) {
       transformedList = transformedList.filter(
         (customer) => customer.Itemcode === params.ItemId
       );
     }
-    if(params.ChoiceId === "Till Pending"){
+    if (params.ChoiceId === "Till Pending") {
       transformedList = transformedList.filter(
         (customer) => customer.Rcv == null
       );
-    } else if(params.ChoiceId === "Done"){
+    } else if (params.ChoiceId === "Done") {
       transformedList = transformedList.filter(
         (customer) => customer.Rcv !== null
       );
     }
-    setFilteredData(transformedList)
+    setFilteredData(transformedList);
   };
 
   const ActionFunc = () => {};
@@ -204,11 +206,10 @@ console.log(transformedList,"transformlist");
   // useEffects
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-    fetchPartyOrder({user,today});
+    fetchPartyOrder({ user, today });
     fetchArtisanMaster();
-    fetchItemMaster(user)
+    fetchItemMaster(user);
     PlacePartyPrint({ today });
-    
   }, [user]);
 
   // useEffect(()=>{
@@ -217,9 +218,13 @@ console.log(transformedList,"transformlist");
 
   useEffect(() => {
     filterCustomerData();
-  }, [PartyOrder, PartyPrintList,params.ArtisanId, params.PartyId, params.ChoiceId]);
-
- 
+  }, [
+    PartyOrder,
+    PartyPrintList,
+    params.ArtisanId,
+    params.PartyId,
+    params.ChoiceId,
+  ]);
 
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
@@ -294,7 +299,7 @@ console.log(transformedList,"transformlist");
                 fontWeight: "bold",
               }}
             >
-              Artisan Code:
+              Karigar Code:
             </label>
             <div style={{ width: "auto", zIndex: "95" }}>
               <SearchableDropDown2
@@ -302,7 +307,7 @@ console.log(transformedList,"transformlist");
                 handleChange={OnChangeHandler}
                 label="ArtisanId"
                 selectedVal={params.ArtisanId} // Pass the selected artisan
-                placeholder="Select Artisan"
+                placeholder="Select Karigar"
               />
             </div>
           </div>

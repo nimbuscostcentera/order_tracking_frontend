@@ -16,14 +16,14 @@ const useEditArtisan = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      // console.log(response);
+      // //console.log(response);
       set({
         ArtisanEditSuccess: response,
         isArtisanEditLoading: false,
         ArtisanEditError: null,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         ArtisanEditError: error?.response?.data?.response,
         isArtisanEditLoading: false,

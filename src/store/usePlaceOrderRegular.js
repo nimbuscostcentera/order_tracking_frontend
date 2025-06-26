@@ -13,13 +13,15 @@ const usePlaceRegularOrder = create((set) => ({
       const result = await axios.post(API, userdata);
       const { data } = result;
       const { response } = data;
-      set({ RegularOrderSuccess: response, isRegularOrderLoading: false }); // Update RegularOrder with fetched data
+      set({ RegularOrderSuccess: response}); // Update RegularOrder with fetched data
     } catch (error) {
       set({
-        RegularOrderError: error?.response?.data?.response,
-        isRegularOrderLoading: false,
+        RegularOrderError: error?.response?.data?.response
       }); // Handle errors
     }
+    set({
+      isRegularOrderLoading: false,
+    }); // Handle errors
   },
   ClearStatePlaceOrder: async () => {
     set({

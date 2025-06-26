@@ -16,10 +16,10 @@ const useAddItem = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      //   console.log(response);
+      //   //console.log(response);
       set({ ItemRegSuccess: response, isItemRegLoading: false }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         ItemRegError: error?.response?.data?.response,
         isItemRegLoading: false,

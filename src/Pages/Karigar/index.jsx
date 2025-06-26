@@ -44,7 +44,7 @@ function KarigarListEdit() {
 
 
   const HandleMultiSelection = (ids) => {
-    // console.log(ids);
+    // //console.log(ids);
     let array = ids?.map((item) => item?.value);
     setKarigarData((prev) => ({ ...prev, data: array, selectedValue: ids }));
   };
@@ -54,8 +54,9 @@ function KarigarListEdit() {
     let value = e.target.value;
     setKarigarData((prev) => ({ ...prev, [key]: value }));
   };
-  const SaveData = () => {
-    // console.log(karigarData,"karigardata")
+  const SaveData = (e) => {
+    e.preventDefault();
+    // //console.log(karigarData,"karigardata")
     // Check if any required field in karigarData is empty or null
     if (
       !karigarData.CODE ||
@@ -72,7 +73,7 @@ function KarigarListEdit() {
       return;
     }
 
-    if(!EmailValidate(karigarData.ADDRESS)){
+    if (!EmailValidate(karigarData.ADDRESS)) {
       toast.error("Invalid Email!", {
         position: "top-right",
         autoClose: 3000,
@@ -87,35 +88,35 @@ function KarigarListEdit() {
       });
       return;
     }
-  if (!PhnoValidation(karigarData.PHONE)) {
-     toast.error("Invalid Phone Number!", {
-       position: "top-right",
-       autoClose: 3000,
-     });
-     return;
-  }
-  if (!/^\d{10}$/.test(karigarData.MANAGER_CONTACT)) {
-    toast.error("Phone number must be exactly 10 digits!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-    return;
-  }
-if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
-   toast.error("Invalid Phone Number!", {
-     position: "top-right",
-     autoClose: 3000,
-   });
-   return;
-}
-  
+    if (!PhnoValidation(karigarData.PHONE)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!/^\d{10}$/.test(karigarData.MANAGER_CONTACT)) {
+      toast.error("Phone number must be exactly 10 digits!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     // Proceed to save data if validation passes
     InsertKarigar({ ...karigarData, ...user });
   };
 
   useEffect(() => {
     fetchItemMaster(user);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (isKarigarRegLoading && !KarigarRegError && !KarigarRegSuccess) {
@@ -124,22 +125,21 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
         autoClose: 3000,
       });
     }
-    if (KarigarRegSuccess && !isKarigarRegLoading && !KarigarRegError)
-    {
+    if (KarigarRegSuccess && !isKarigarRegLoading && !KarigarRegError) {
       toast.success("Artisan Added Successfully", {
         position: "top-right",
         autoClose: 3000,
       });
-        setKarigarData({
-          CODE: null,
-          NAME: null,
-          ADDRESS: null,
-          PHONE: null,
-          CONTACTPERSON: null,
-          MANAGER_CONTACT:null,
-          data: [],
-          selectedValue: [],
-        });
+      setKarigarData({
+        CODE: null,
+        NAME: null,
+        ADDRESS: null,
+        PHONE: null,
+        CONTACTPERSON: null,
+        MANAGER_CONTACT: null,
+        data: [],
+        selectedValue: [],
+      });
     }
     if (KarigarRegError && !isKarigarRegLoading && !KarigarRegSuccess) {
       toast.error(KarigarRegError, {
@@ -198,12 +198,12 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
                   >
                     <i className="bi bi-person-circle"></i>
                   </th>
-                  <th>Artisan Code*</th>
-                  <th>Artisan Name*</th>
+                  <th>Karigar Code*</th>
+                  <th>Karigar Name*</th>
                   <th>Email*</th>
-                  <th>Phone No.*</th>
+                  <th>Contact No.*</th>
                   <th>Manager Name*</th>
-                  <th>Manager Number</th>
+                  <th>Manager No*</th>
                   <th>Select Items*</th>
                 </tr>
               </thead>
@@ -214,7 +214,7 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
                   </td>
                   <td>
                     <input
-                      placeholder="Artisan Code"
+                      placeholder="Karigar Code"
                       className="input-cell"
                       name="CODE"
                       value={karigarData?.CODE || ""}
@@ -226,7 +226,7 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
                   </td>
                   <td>
                     <input
-                      placeholder="Artisan Name"
+                      placeholder="Karigar Name"
                       className="input-cell"
                       name="NAME"
                       value={karigarData?.NAME || ""}
@@ -304,7 +304,7 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
             <Button
               variant="success"
               style={{ padding: "1px 9px" }}
-              onClick={() => SaveData()}
+              onClick={(e) => SaveData(e)}
               disabled={isDisable}
             >
               {/* <i className="bi bi-plus"></i> */}
@@ -313,7 +313,7 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
           </div>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-        <hr className="my-1" />
+          <hr className="my-1" />
           <div className="d-flex justify-content-between">
             <h5>Karigar Edit</h5>
           </div>
@@ -327,7 +327,7 @@ if (!PhnoValidation(karigarData.MANAGER_CONTACT)) {
           xl={12}
           style={{ paddingLeft: "15px", margin: "0px" }}
         >
-          <KarigarTable  isDisable={isDisable} setIsDisable={setIsDisable}/>
+          <KarigarTable isDisable={isDisable} setIsDisable={setIsDisable} />
         </Col>
       </Row>
     </Container>

@@ -1,112 +1,211 @@
-import jsPDF from "jspdf";
+
+import { jsPDF } from "jspdf";
+import {autoTable} from "jspdf-autotable";
 import moment from "moment";
 
-const generateChalanPDF = (data) => {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "pt",
-    format: "a6", // 4 inches width (288pt) and 20 inches height (1440pt)
-  });
+// const generateChalanPDF = (data) => {
+//   console.log(data?.length);
+//   // Initialize jsPDF with autoTable
+//   const doc = new jsPDF();
+  
+//   // Page setup
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   const margin = 10;
+//   const ROWS_PER_PAGE =35;
 
+//   // Set default font
+//   doc.setFont("helvetica");
+//   doc.setFontSize(12);
+
+//   // Add border
+//   doc.setDrawColor(0);
+//   doc.setLineWidth(0.3);
+//   doc.rect(margin, margin, pageWidth - margin*2, pageHeight - margin*2);
+
+//   doc.setTextColor(0, 0, 0);
+//   doc.text("Customer Order Invoice", pageWidth / 2,15, { align: "center" });
+
+//   // Main Items Table
+//   let startY =20;
+//   let PrintableRows = data?.map((item) => {
+//     let odate = moment(item.OrderDate).format("DD/MM/YYYY");
+//     let diff = moment().diff(moment(item.OrderDate), "days");
+//     return {
+//       Artisan: item?.Artisan || "",
+//       CUSTCode: item.CUSTCode || "",
+//       NAME: item.NAME || "",
+//       SampleRcpVou: item.SampleRcpVou || "",
+//       Desc: item.Desc || "",
+//       OrderDate: odate || "",
+//       Age: diff || "",
+//     };
+//   });
+//   console.log(PrintableRows?.length,"Printable Lenght");
+//   const tablecol = [
+//     { header: "Artisan Code", key: "Artisan" },
+//     { header: "Cust. Code", key: "CUSTCode" },
+//     { header: "Cust Name", key: "NAME" },
+//     { header: "Cust ref No.", key: "SampleRcpVou" },
+//     { header: "Item Desc.", key: "Desc" },
+//     { header: "Order Date", key: "OrderDate" },
+//     { header: "Age", key: "Age" },
+//   ];
+
+//   let rowsPerPage = ROWS_PER_PAGE;
+
+//   for (let i = 0; i < PrintableRows.length; i += rowsPerPage) {
+//     if (i !== 0) {
+//       doc.addPage();
+//       doc.setDrawColor(0);
+//       doc.setLineWidth(0.3);
+//       doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
+//       startY =5;
+//     }
+//     rowsPerPage = (i == 0 ? ROWS_PER_PAGE : 40);
+//     autoTable(doc, {
+//       startY: startY + 5,
+//       tableWidth: pageWidth - margin * 2 - 4,
+//       head: [tablecol?.map((col) => col?.header)],
+//       body: PrintableRows?.slice(i, rowsPerPage + 1).map((row) =>
+//         tablecol.map((col) => row[col?.key])
+//       ),
+//       theme: "grid",
+//       headStyles: {
+//         fillColor: [165, 165, 165],
+//         textColor: [0, 0, 0],
+//         halign: "center",
+//         fontSize: 9,
+//       },
+//       columnStyles: {
+//         4: { cellWidth:50},
+//       },
+//       margin: { left: margin + 2, right: margin + 2 },
+//       styles: { fontSize: 8, halign: "center" },
+//     });
+//   }
+//   // doc.text(data[0]?.ArtisanCode);
+
+//   // Add footer
+//   const pageCount = doc.internal.getNumberOfPages();
+//   for (let i = 1; i <= pageCount; i++) {
+//     doc.setPage(i);
+//     doc.setFontSize(8);
+//     doc.setTextColor(0, 0, 0);
+//     doc.text(`Page ${i} of ${pageCount}`, pageWidth -25, pageHeight - 5);
+//     doc.text(`Generated: ${moment().format("DD/MM/YYYY HH:mm")}`,5, pageHeight -5);
+//   }
+
+//   // Save the PDF
+//   window.open(doc.output("bloburl"), "_blank");
+//   // doc.save("customer_order_invoice.pdf");
+// };
+
+
+const generateChalanPDF = (data) => {
+  // Initialize jsPDF with autoTable
+  const doc = new jsPDF();
+  console.log(data);
+  // Page setup
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 10;
+  const ROWS_PER_PAGE =30;
 
-  // Define table dimensions
-  const colWidths = [48, 48, 44, 58, 35, 45];
-  const totalTableWidth = colWidths.reduce((sum, width) => sum + width, 0);
-  const leftMargin = (pageWidth - totalTableWidth) / 2;
-  const topMargin = 30;
+  // Set default font
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
 
-  // Add title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.text("Customer Order Invoice ", pageWidth / 2, 20, { align: "center" });
+  // Add border
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.3);
+  doc.rect(margin, margin, pageWidth - margin*2, pageHeight - margin*2);
 
-  // Set up table
-  doc.setFontSize(8);
-  const tableTop = topMargin;
-  let currentY = tableTop;
+  doc.setTextColor(0, 0, 0);
+  doc.text("Customer Order Invoice", pageWidth / 2, 20, { align: "center" });
 
-  // Helper function to add cell and return its height
-  const addCell = (text, x, y, width, isHeader = false) => {
-    doc.setFont("helvetica", isHeader ? "bold" : "normal");
+  // Main Items Table
+  let startY = 18;
+  let PrintableRows = data?.map((item) => {
+    let odate = moment(item.OrderDate).format("DD/MM/YYYY");
+    let diff = moment().diff(moment(item.OrderDate), "days");
+    return {
+      Artisan: item?.Artisan || "",
+      CUSTCode: item.CUSTCode || "",
+      NAME: item.NAME || "",
+      SampleRcpVou: item.SampleRcpVou || "",
+      Desc: item.Desc || "",
+      OrderDate: odate || "",
+      Age: diff || "",
+    };
+  });
 
-    const fontSize = doc.internal.getFontSize();
-    const lineHeight = fontSize ;
-    const textLines = doc.splitTextToSize(text, width - 4);
-    const lineCount = textLines.length;
+  const tablecol = [
+    { header: "Artisan Code", key: "Artisan" },
+    { header: "Cust. Code", key: "CUSTCode" },
+    { header: "Cust Name", key: "NAME" },
+    { header: "Cust ref No.", key: "SampleRcpVou" },
+    { header: "Item Desc.", key: "Desc" },
+    { header: "Order Date", key: "OrderDate" },
+    { header: "Age", key: "Age" },
+  ];
 
-    const cellHeight = Math.max(lineCount * lineHeight + 6, 20); // Minimum height of 20
+  // Fixed pagination logic
+  let currentPage = 0;
+  const totalRows = PrintableRows.length;
+  
+  while (currentPage * ROWS_PER_PAGE < totalRows) {
+    if (currentPage > 0) {
+      doc.addPage();
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.3);
+      doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
+      startY = 5;
+    }
 
-    // doc.rect(x, y, width, cellHeight);
+    const startRow = currentPage * ROWS_PER_PAGE;
+    const endRow = Math.min(startRow + ROWS_PER_PAGE, totalRows);
+    const pageRows = PrintableRows.slice(startRow, endRow);
 
-    let yOffset = y + 3 + lineHeight / 2;
-
-    textLines.forEach((line) => {
-      doc.text(line, x + 2, yOffset, {
-        align: "left",
-        baseline: "middle",
-      });
-      yOffset += lineHeight;
+    autoTable(doc, {
+      startY: startY + 10,
+      tableWidth: pageWidth - margin * 2 - 4,
+      head: [tablecol.map((col) => col.header)],
+      body: pageRows.map((row) => tablecol.map((col) => row[col.key])),
+      theme: "grid",
+      headStyles: {
+        fillColor: [165, 165, 165],
+        textColor: [0, 0, 0],
+        halign: "center",
+        fontSize: 9,
+      },
+      columnStyles: {
+        4: { cellWidth: 50 }, // Item Desc. column width
+      },
+      margin: { left: margin + 2, right: margin + 2 },
+      styles: { 
+        fontSize: 8, 
+        halign: "center" 
+      },
     });
 
-    return cellHeight;
-  };
+    currentPage++;
+  }
 
-  // Draw header row
-  const headers = [
-    "Customer Code",
-    "Order No",
-    "Date",
-    "Description",
-    "Weight",
-    "Delivery Date",
-  ];
-  let currentX = leftMargin;
-  let maxHeaderHeight = 0;
-  headers.forEach((header, i) => {
-    const cellHeight = addCell(header, currentX, currentY, colWidths[i], true);
-    maxHeaderHeight = Math.max(maxHeaderHeight, cellHeight);
-    currentX += colWidths[i];
-  });
+  // Add footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, pageHeight - 5);
+    doc.text(`Generated: ${moment().format("DD/MM/YYYY HH:mm")}`, 5, pageHeight - 5);
+  }
 
-  // Adjust header row to have uniform height
-  currentX = leftMargin;
-  headers.forEach((header, i) => {
-    doc.rect(currentX, currentY, colWidths[i], maxHeaderHeight);
-    currentX += colWidths[i];
-  });
-
-  // Move to data row
-  currentY += maxHeaderHeight;
-
-  // Draw data row
-  currentX = leftMargin;
-  const values = [
-    data.CUSTCode || "",
-    data.Orderno || "",
-    moment(data.OrderDate).format("DD/MM/YYYY") || "",
-    data.Desc || "",
-    `${data.Wt || 0} g`,
-    moment(data.DeliveryDate).format("DD/MM/YYYY") || "",
-  ];
-
-  let maxDataHeight = 0;
-  values.forEach((value, i) => {
-    const cellHeight = addCell(value, currentX, currentY, colWidths[i]);
-    maxDataHeight = Math.max(maxDataHeight, cellHeight);
-    currentX += colWidths[i];
-  });
-
-  // Adjust data row to have uniform height
-  currentX = leftMargin;
-  values.forEach((value, i) => {
-    doc.rect(currentX, currentY, colWidths[i], maxDataHeight);
-    currentX += colWidths[i];
-  });
-
-  // Open PDF in a new tab
+  // Save the PDF
   window.open(doc.output("bloburl"), "_blank");
 };
 
 export default generateChalanPDF;
+
+

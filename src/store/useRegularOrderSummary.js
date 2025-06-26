@@ -16,13 +16,13 @@ const useRegularOrderSummary = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      console.log(response);
+      //console.log(response);
       set({
         RegularOrderSummaryList: response,
         isRegularOrderSummaryLoading: false,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         RegularOrderSummaryError: error?.response?.data?.response,
         isRegularOrderSummaryLoading: false,

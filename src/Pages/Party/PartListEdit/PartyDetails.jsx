@@ -14,11 +14,11 @@ import useEditParty from "../../../store/useEditParty";
 import useAddParty from "../../../store/UseAddParty";
 import useFetchParty from "../../../store/usePartyList";
 import PhnoValidation from "../../../GlobalFunctions/PhnoValidation";
-function PartyDetils({isDisable,setIsDisable}) {
-
-    const { user } = useFetchAuth();
-    const { CityList = [], isCityLoading, fetchCityMaster } = useFetchCity();
-  const { StateList = [], isStateLoading, fetchStateMaster } = useFetchState();
+import EmailValidation from "../../../GlobalFunctions/EmailValidation";
+function PartyDetils({ isDisable, setIsDisable }) {
+  const { user } = useFetchAuth();
+  const { CityList = [], isCityLoading, fetchCityMaster } = useFetchCity();
+  // const { StateList = [], isStateLoading, fetchStateMaster } = useFetchState();
   const {
     PartyEditError,
     isPartyEditLoading,
@@ -27,56 +27,70 @@ function PartyDetils({isDisable,setIsDisable}) {
     ClearStateEditParty,
   } = useEditParty();
   const { PartyRegSuccess } = useAddParty();
-    useEffect(() => {
-      fetchCityMaster(user);
-      fetchStateMaster(user);
-    }, []);
+  const [originalOrder, setOriginalOrder] = useState([]);
+  useEffect(() => {
+    fetchCityMaster(user);
+    // fetchStateMaster(user);
+  }, []);
 
-    const CityListOption = useMemo(() => {
-      return CityList?.map((item) => ({
-        label: `${item?.CityCode}:${item?.DESCRIPTION}`,
-        value: `${item?.id}`,
-      }));
-    }, [isCityLoading]);
+  const CityListOption = useMemo(() => {
+    return CityList?.map((item) => ({
+      label: `${item?.CityCode}:${item?.DESCRIPTION}`,
+      value: `${item?.id}`,
+    }));
+  }, [isCityLoading]);
 
-    const StateListOption = useMemo(() => {
-      return StateList?.map((item) => ({
-        label: `${item?.StateCode}:${item?.DESCRIPTION}`,
-        value: `${item?.id}`,
-      }));
-    }, [isStateLoading]);
-  
+  // const StateListOption = useMemo(() => {
+  //   return StateList?.map((item) => ({
+  //     label: `${item?.StateCode}:${item?.DESCRIPTION}`,
+  //     value: `${item?.id}`,
+  //   }));
+  // }, [isStateLoading]);
+
   const [params, SetParams] = useState({
     ActionID: null,
     IsAction: false,
   });
+  const [filteredData, setFilteredData] = useState([]);
   const [editedData, setEditedData] = useState({
-    id:null,
+    id: null,
     NAME: null,
     PHONE: null,
-    ADDRESS1: null,
-    ADDRESS2: null,
     ADDRESS3: null,
     City: null,
-    State: null,
-    PartyCode:null
+    PartyCode: null,
   });
-  const {
-    PartyList=[],
-    fetchPartyData,
-    error,
-    loading,
-  } = useFetchParty();
+  const { PartyList, fetchPartyData, error, loading } = useFetchParty();
 
-  
   useEffect(() => {
     fetchPartyData(user);
+    if (originalOrder.length > 0 && PartyList?.length > 0) {
+      const sortedData = originalOrder
+        .map((id) => PartyList.find((row) => row.id === id))
+        .filter(Boolean);
+      
+      setFilteredData(sortedData);
+    }
   }, [PartyEditSuccess, user, PartyRegSuccess]);
 
   useEffect(() => {
     setFilteredData(PartyList);
-  },[loading,PartyList])
-  const [filteredData, setFilteredData] = useState(PartyList);
+    if (PartyList?.length > 0) {
+      let updatedData = PartyList.map((party) => ({
+        ...party,
+      }));
+  
+      // Ensure the order remains the same
+      if (originalOrder.length > 0) {
+        updatedData = originalOrder
+          .map((id) => updatedData.find((row) => row.id === id))
+          .filter(Boolean);
+      }
+  
+      setFilteredData(updatedData);
+    }
+  }, [loading, PartyList]);
+
   const Col = [
     {
       headername: "Party Code",
@@ -85,18 +99,8 @@ function PartyDetils({isDisable,setIsDisable}) {
       max: 16,
     },
     { headername: "Customer Name", fieldname: "NAME", type: "String", max: 50 },
-    { headername: "Phone No.", fieldname: "PHONE", type: "number", max: 10 },
-    { headername: "Address1", fieldname: "ADDRESS1", type: "String", max: 100 },
-    { headername: "Address2", fieldname: "ADDRESS2", type: "String", max: 100 },
-    { headername: "Address3", fieldname: "ADDRESS3", type: "String", max: 100 },
-    {
-      headername: "State Code",
-      fieldname: "StateCode",
-      selectionname: "State",
-      type: "String",
-      isSelection: true,
-      options: StateListOption,
-    },
+    { headername: "Phone No.", fieldname: "PHONE", type: "number", max: "10" },
+    { headername: "Email", fieldname: "ADDRESS3", type: "String", max: 100 },
     {
       headername: "City Name",
       fieldname: "cityname",
@@ -111,24 +115,26 @@ function PartyDetils({isDisable,setIsDisable}) {
     SetParams((prev) => ({ ...prev, IsAction: true, ActionID: tabindex }));
     setIsDisable(true);
     setEditedData({
-      id: PartyList[tabindex]?.id,
-      NAME: PartyList[tabindex]?.NAME,
-      PHONE: PartyList[tabindex]?.PHONE,
-      ADDRESS1: PartyList[tabindex]?.ADDRESS1,
-      ADDRESS2: PartyList[tabindex]?.ADDRESS2,
-      ADDRESS3: PartyList[tabindex]?.ADDRESS3,
-      City: PartyList[tabindex]?.City,
-      State: PartyList[tabindex]?.State,
-      PartyCode:PartyList[tabindex]?.PartyCode
+      id: filteredData[tabindex]?.id,
+      NAME: filteredData[tabindex]?.NAME,
+      PHONE: filteredData[tabindex]?.PHONE,
+      ADDRESS3: filteredData[tabindex]?.ADDRESS3,
+      City: filteredData[tabindex]?.City,
+      PartyCode: filteredData[tabindex]?.PartyCode,
     });
   };
 
+  const applyFilter = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+    // Store the current visible order
+    setOriginalOrder(newFilteredData.map((row) => row.id));
+  };
   const SortingFunc = (header, type) => {
-    console.log(header, type, "sorttable");
+    //console.log(header, type, "sorttable");
     const currentOrder = checkOrder(filteredData, header);
-    // console.log(currentOrder)
+    // //console.log(currentOrder)
     const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
-// console.log(newOrder);
+    // //console.log(newOrder);
 
     // setSortFilter((prev) => ({
     //   ...prev,
@@ -137,26 +143,27 @@ function PartyDetils({isDisable,setIsDisable}) {
     let result;
     if (type === "String") {
       result = SortArrayByString(newOrder, filteredData, header);
-      console.log(result, "result");
+      //console.log(result, "result");
     } else if (type === "Date") {
-      // console.log(type)
+      // //console.log(type)
       result = SortArrayByDate(newOrder, filteredData, header);
-      console.log(result, "result date");
+      //console.log(result, "result date");
     } else if (type === "number") {
       result = SortArrayByNumber(newOrder, filteredData, header);
     }
     setFilteredData(result);
+    applyFilter(result)
   };
-  
-  const OnChangeHandler = (index,e) => {
+
+  const OnChangeHandler = (index, e) => {
     let key = e.target.name;
     let value = e.target.value;
-    console.log(key,value);
-    
+    //console.log(key,value);
+
     setEditedData({ ...editedData, [key]: value });
   };
-  const SaveChange = () => { 
-    // console.log(editedData);
+  const SaveChange = () => {
+    // //console.log(editedData);
     if (!/^\d{10}$/.test(editedData.PHONE)) {
       toast.error("Phone number must be exactly 10 digits!", {
         position: "top-right",
@@ -164,53 +171,59 @@ function PartyDetils({isDisable,setIsDisable}) {
       });
       return;
     }
-  if (!PhnoValidation(editedData.PHONE)) {
-     toast.error("Invalid Phone Number!", {
-       position: "top-right",
-       autoClose: 3000,
-     });
-     return;
-  }
+    if (!PhnoValidation(editedData.PHONE)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!EmailValidation(editedData.ADDRESS3)) {
+      toast.error("Invalid Email ID!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     EditPartyFunc(editedData);
   };
   //toaster
   useEffect(() => {
     if (isPartyEditLoading && !PartyEditSuccess && !PartyEditError) {
-        toast.play("pleaes wait...", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      } else if (PartyEditSuccess && !isPartyEditLoading && !PartyEditError) {
-        toast.success("Party Edited Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        setEditedData({
-          id: null,
-          NAME: null,
-          PHONE: null,
-          ADDRESS1: null,
-          ADDRESS2: null,
-          ADDRESS3: null,
-          City: null,
-          State: null,
-          PartyCode:null
-        });
+      toast.play("pleaes wait...", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } else if (PartyEditSuccess && !isPartyEditLoading && !PartyEditError) {
+      toast.success("Party Edited Successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setEditedData({
+        id: null,
+        NAME: null,
+        PHONE: null,
+        ADDRESS1: null,
+        ADDRESS2: null,
+        ADDRESS3: null,
+        City: null,
+        State: null,
+        PartyCode: null,
+      });
 
-        SetParams({ ActionID: null, IsAction: null });
-        setIsDisable(false);
+      SetParams({ ActionID: null, IsAction: null });
+      setIsDisable(false);
 
-        ClearStateEditParty();
-      } else if (PartyEditError && !isPartyEditLoading && !PartyEditSuccess) {
-        toast.error(PartyEditError, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      }
-      
-    }, [isPartyEditLoading, PartyEditSuccess, PartyEditError]);
- 
+      ClearStateEditParty();
+    } else if (PartyEditError && !isPartyEditLoading && !PartyEditSuccess) {
+      toast.error(PartyEditError, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  }, [isPartyEditLoading, PartyEditSuccess, PartyEditError]);
+
   return (
     <div id="table-box" style={{ height: "50vh" }}>
       {!loading && Array.isArray(PartyList) && PartyList.length > 0 ? (

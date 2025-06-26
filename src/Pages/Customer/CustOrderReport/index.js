@@ -11,7 +11,7 @@ import SortArrayByString from "../../../GlobalFunctions/SortarrayByString";
 import SortArrayByDate from "../../../GlobalFunctions/SortArrayByDate";
 import SortArrayByNumber from "../../../GlobalFunctions/SortArrayByNumber";
 import useFetchCust from "../../../store/useFetchCust";
-import GetReportPdf from "./getReportPdf";
+import GetReportPdf from "../CustOrderPrint";
 import "./report.css";
 
 function CustReport() {
@@ -36,10 +36,12 @@ function CustReport() {
 
   // Column definitions for the table
   const Col1 = [
+    { headername: "Customer Ref.", fieldname: "SampleRcpVou", type: "Date" },
     { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
     { headername: "OrderNo", fieldname: "Orderno", type: "String" },
     { headername: "Customer Code", fieldname: "CUSTCode", type: "String" },
-    { headername: "Artisan  Code", fieldname: "Artisan", type: "String" },
+    { headername: "Karigar  Code", fieldname: "Artisan", type: "String" },
+    { headername: "Delivery Date", fieldname: "DeliveryDate", type: "String" },
   ];
   const choice = ["Till Pending", "Done", "All"];
 
@@ -66,7 +68,7 @@ function CustReport() {
 
   const handleprint = () => {
     GetReportPdf(filteredData);
-    console.log(filteredData);
+    //console.log(filteredData);
   };
 
   // Artisan list for dropdown
@@ -127,7 +129,8 @@ function CustReport() {
 
   // useEffects
   useEffect(() => {
-    fetchCustDash(user);
+    const today = new Date().toISOString().split("T")[0];
+    fetchCustDash({ today });
     fetchArtisanMaster();
     fetchCustomrData();
   }, [user, CustOrderSuccess]);
@@ -211,7 +214,7 @@ function CustReport() {
                 fontWeight: "bold",
               }}
             >
-              Artisan Code:
+              Karigar Code:
             </label>
             <div style={{ width: "auto", zIndex: "95" }}>
               <SearchableDropDown2
@@ -219,7 +222,7 @@ function CustReport() {
                 handleChange={OnChangeHandler}
                 label="ArtisanId"
                 selectedVal={params.ArtisanId} // Pass the selected artisan
-                placeholder="Select Artisan"
+                placeholder="Select Karigar"
               />
             </div>
           </div>
@@ -253,7 +256,7 @@ function CustReport() {
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div id="table-box" style={{height:"70vh"}}>
+          <div id="table-box" style={{ height: "70vh" }}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

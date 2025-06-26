@@ -53,30 +53,64 @@ function RegularOrderWeight() {
     { headername: "Total Weight", fieldname: "totwt", type: "number" },
   ];
   const Col2 = [
-    { headername: "Artisian Name", fieldname: "NAME", type: "String" },
-    { headername: "Artisian Code", fieldname: "CODE", type: "String" },
+    { headername: "Karigar Name", fieldname: "NAME", type: "String" },
+    { headername: "Karigar Code", fieldname: "CODE", type: "String" },
   ];
 
   // All function
 
   const SortingFunc = (header, type) => {
+    if (!filteredData || filteredData.length === 0) {
+      // console.error("No data to sort");
+      return;
+    }
     const currentOrder = checkOrder(filteredData, header);
+    console.log(currentOrder);
     const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
     let result;
-    if (type === "String") {
+ 
+    if (type == "String") {
       result = SortArrayByString(newOrder, filteredData, header);
-    } else if (type === "Date") {
+    } else if (type == "Date") {
       result = SortArrayByDate(newOrder, filteredData, header);
-    } else if (type === "number") {
+    } else if (type == "number") {
+      console.log(type, newOrder, filteredData, header);
+      console.log(header,filteredData);
       result = SortArrayByNumber(newOrder, filteredData, header);
     }
     setFilteredData(result);
   };
-    const handleClose = () => setShowModal(false);
+
+  const SortingFuncSub = (header, type) => {
+    if (!detailData || detailData.length === 0) {
+      // console.error("No data to sort");
+      return;
+    }
+    //console.log(detailData, header, type, "fnd");
+
+    const currentOrder = checkOrder(detailData, header);
+    const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
+
+    let result;
+    if (type === "String") {
+      //console.log("In string");
+      if (params.viewIndex != null) {
+        result = SortArrayByString(newOrder, detailData, header);
+      } else {
+        result = SortArrayByString(newOrder, detailData, header);
+      }
+    } else if (type === "Date") {
+      result = SortArrayByDate(newOrder, detailData, header);
+    } else if (type === "number") {
+      result = SortArrayByNumber(newOrder, detailData, header);
+    }
+    setDetailData(result);
+  };
+  const handleClose = () => setShowModal(false);
   const handleViewClick = (index) => {
     setParams((prev) => ({ ...prev, viewIndex: index }));
     const data = filteredData[index];
-    console.log(data);
+    //console.log(data);
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     fetchItemArtisianMaster({ Item: data.ID, today });
 
@@ -91,7 +125,7 @@ function RegularOrderWeight() {
 
   const handleprint = () => {
     GetReportPdf(filteredData);
-    // console.log(filteredData);
+    // //console.log(filteredData);
   };
 
   // Item list for dropdown
@@ -103,26 +137,25 @@ function RegularOrderWeight() {
     }));
   }, [ItemList]);
 
-const filterCustomerData = () => {
-  if (params.ItemId) {
-    const RegularByWtListFiltered = RegularByWtList.filter(
-      (item) => item.Itemcode === params.ItemId
-    ).map((item) => ({
-      ...item,
-      totwt: item.totwt.toFixed(3), // Ensure it's still a number
-    }));
-
-    setFilteredData(RegularByWtListFiltered);
-  } else {
-    const formattedList = RegularByWtList.map((item) => ({
-      ...item,
-      totwt: item.totwt.toFixed(3), // Format all data if no filter is applied
-    }));
-
-    setFilteredData(formattedList);
-  }
-};
-
+  const filterCustomerData = () => {
+    if (params.ItemId) {
+      const RegularByWtListFiltered = RegularByWtList.filter(
+        (item) => item.Itemcode == params.ItemId
+      ).map((item) => ({
+        ...item,
+        totwt: parseFloat(item.totwt).toFixed(3), // Ensure it's still a number
+      }));
+console.log(RegularByWtListFiltered);
+      setFilteredData(RegularByWtListFiltered);
+    } else {
+      const formattedList = RegularByWtList.map((item) => ({
+        ...item,
+        totwt: parseFloat(item.totwt), // Format all data if no filter is applied
+      }));
+      console.log(formattedList,RegularByWtList);
+      setFilteredData(formattedList);
+    }
+  };
 
   const ActionFunc = () => {};
   const SaveChange = () => {};
@@ -133,9 +166,9 @@ const filterCustomerData = () => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     fetchRegularByWtMaster({ today }); // Add other fields as required
   }, [user]);
-// console.log(ItemArtisianList);
+  // //console.log(ItemArtisianList);
   useEffect(() => {
-    // console.log(ItemArtisianList);
+    // //console.log(ItemArtisianList);
     setDetailData(ItemArtisianList);
   }, [ItemArtisianList]);
   useEffect(() => {
@@ -219,7 +252,7 @@ const filterCustomerData = () => {
               Col={Col1}
               handleprint={handleprint}
               isView={true}
-              viewPref={"Item"}
+              viewPref={"Karigar"}
               handleViewClick={handleViewClick}
             />
             <ReusableModal
@@ -227,10 +260,14 @@ const filterCustomerData = () => {
               handleClose={handleClose}
               body={
                 <>
-                  <Table tab={detailData} onSorting={SortingFunc} Col={Col2} />
+                  <Table
+                    tab={detailData}
+                    onSorting={SortingFuncSub}
+                    Col={Col2}
+                  />
                 </>
               }
-              Title={"Artisian Name"}
+              Title={"Karigar"}
               isSuccess={false}
               isPrimary={true}
               handlePrimary={handleClose} // Optional: Define your primary action

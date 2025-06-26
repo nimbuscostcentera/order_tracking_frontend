@@ -1,117 +1,106 @@
 import jsPDF from "jspdf";
 import moment from "moment";
-
+import { autoTable } from "jspdf-autotable";
 const GetReportPdf = (data) => {
+  // Initialize jsPDF with autoTable
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "pt",
-    format: [288, 1440], // 4 inches width (288pt) and 20 inches height (1440pt)
+    format: "a4",
   });
 
+  // Constants
+  const margin = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Define table dimensions dynamically
-  const totalTableWidth = pageWidth - 40; // Account for 20pt margin on both sides
-  const leftMargin = 20; // Set left margin
-  const topMargin = 30;
+  // Set default font
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
 
-  // Define proportional widths for each column
-  const colWidths = [
-    totalTableWidth * 0.25, // 15% width for Order Date (smaller column)
-    totalTableWidth * 0.35, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.20, // 25% width for Customer Code
-    totalTableWidth * 0.25, // 25% width for Artisan Code
-  ];
+  // Add border
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
 
   // Add title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.text("Customer Order Report", pageWidth / 2, 20, { align: "center" });
+  doc.setFontSize(16);
+  doc.setTextColor(0, 0, 0);
+  doc.text("Item Wise Regular Order Report", pageWidth / 2, 30, {
+    align: "center",
+  });
 
-  // Set up table
-  doc.setFontSize(8);
-  const tableTop = topMargin;
-  let currentY = tableTop;
+  // Prepare data
+  const tableData = data.map((item) => ({
+    Orderno: item?.Orderno || "-",
+    OrderDate: item?.OrderDate
+      ? moment(item.OrderDate).format("DD/MM/YYYY")
+      : "-",
+    Itemcode: item?.Itemcode || "-",
+    ArtisanCode: item?.ArtisanCode || "-",
+    wt: item?.wt || "-",
+  }));
 
-  // Helper function to add cell and return its height
-  const addCell = (text, x, y, width, isHeader = false) => {
-    doc.setFont("helvetica", isHeader ? "bold" : "normal");
+  // Column configuration
+  const columns = [
+    { header: "Order No.", dataKey: "Orderno" },
+    { header: "Order Date", dataKey: "OrderDate" },
+    { header: "Product Code", dataKey: "Itemcode" },
+    { header: "Karigar Code", dataKey: "ArtisanCode" },
+    { header: "Weight", dataKey: "wt" },
+  ];
 
-    const fontSize = doc.internal.getFontSize();
-    const lineHeight = fontSize;
-    const textLines = doc.splitTextToSize(text, width - 4);
-    const lineCount = textLines.length;
-
-    const cellHeight = Math.max(lineCount * lineHeight + 6, 20); // Minimum height of 20
-
-    let yOffset = y + 3 + lineHeight / 2;
-
-    textLines.forEach((line) => {
-      doc.text(line, x + 2, yOffset, {
-        align: "left",
-        baseline: "middle",
-      });
-      yOffset += lineHeight;
-    });
-
-    return cellHeight;
+  // AutoTable configuration
+  const tableConfig = {
+    startY: 40,
+    margin: { top: 40, right: margin, bottom: margin, left: margin },
+    headStyles: {
+      fillColor: [41, 128, 185],
+      textColor: 255,
+      fontStyle: "bold",
+      halign: "center",
+    },
+    bodyStyles: {
+      halign: "center",
+      valign: "middle",
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    columnStyles: {
+      Orderno: { cellWidth: "auto" },
+      OrderDate: { cellWidth: "auto" },
+      Itemcode: { cellWidth: "auto" },
+      ArtisanCode: { cellWidth: "auto" },
+      wt: { cellWidth: "auto" },
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 6,
+      overflow: "linebreak",
+    },
+    didDrawPage: function (data) {
+      // Footer on each page
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.text(
+        `Page ${data.pageNumber} of ${pageCount}`,
+        pageWidth - margin - 20,
+        pageHeight - margin + 10
+      );
+      doc.text(
+        `Generated: ${moment().format("DD/MM/YYYY HH:mm")}`,
+        margin + 10,
+        pageHeight - margin + 10
+      );
+    },
   };
 
-  // Draw header row
-  const headers = ["Order Date", "Order No", "Customer Code", "Artisan Code"];
-  let currentX = leftMargin;
-  let maxHeaderHeight = 0;
-  headers.forEach((header, i) => {
-    const cellHeight = addCell(header, currentX, currentY, colWidths[i], true);
-    maxHeaderHeight = Math.max(maxHeaderHeight, cellHeight);
-    currentX += colWidths[i];
-  });
+  // Generate the table
+  autoTable(columns, tableData, tableConfig);
 
-  // Adjust header row to have uniform height
-  currentX = leftMargin;
-  headers.forEach((header, i) => {
-    doc.rect(currentX, currentY, colWidths[i], maxHeaderHeight);
-    currentX += colWidths[i];
-  });
-
-  // Move to data rows
-  currentY += maxHeaderHeight;
-
-  // Draw data rows for each item in the array
-  data.forEach((item) => {
-    currentX = leftMargin;
-    const values = [
-      moment(item.OrderDate).format("DD/MM/YYYY") || "",
-      item.Orderno || "",
-      item.CUSTCode || "",
-      item.Artisan || "",
-    ];
-
-    let maxDataHeight = 0;
-    values.forEach((value, i) => {
-      const cellHeight = addCell(value, currentX, currentY, colWidths[i]);
-      maxDataHeight = Math.max(maxDataHeight, cellHeight);
-      currentX += colWidths[i];
-    });
-
-    // Adjust data row to have uniform height
-    currentX = leftMargin;
-    values.forEach((value, i) => {
-      doc.rect(currentX, currentY, colWidths[i], maxDataHeight);
-      currentX += colWidths[i];
-    });
-
-    currentY += maxDataHeight;
-
-    // Add new page if the content exceeds the page height
-    if (currentY + maxDataHeight > pageHeight) {
-      doc.addPage();
-      currentY = topMargin;
-    }
-  });
-
-  // Open PDF in a new tab
+  // Save the PDF
   window.open(doc.output("bloburl"), "_blank");
 };
 

@@ -12,12 +12,13 @@ import useEditItem from "../../store/useEditItem";
 import { toast } from "react-toastify";
 function ItemTable({setIsDisable}) {
   const [editedData, setEditedData] = useState({
-    id:null,
+    id: null,
     ITEMCODE: null,
     DESCRIPTION: null,
   });
-  console.log(editedData);
+  //console.log(editedData);
   const [filteredData, setFilteredData] = useState([]);
+  const [originalOrder, setOriginalOrder] = useState([]);
   const [params, setParams] = useState({
     ActionID: -1,
     IsAction: false,
@@ -35,12 +36,36 @@ function ItemTable({setIsDisable}) {
 
   useEffect(() => {
     fetchItemMaster();
+    if (originalOrder.length > 0 && ItemList?.length > 0) {
+      const sortedData = originalOrder
+        .map((id) => ItemList.find((row) => row.id === id))
+        .filter(Boolean);
+      
+      setFilteredData(sortedData);
+    }
   }, [ItemRegSuccess, ItemEditSuccess]);
 
   useEffect(() => {
+    // if (ItemList?.length > 0) {
+    //   setFilteredData([...ItemList]);
+    // }
+
     if (ItemList?.length > 0) {
-      setFilteredData([...ItemList]);
+      let updatedData = ItemList.map((item) => ({
+        ...item,
+      }));
+  
+      // Ensure the order remains the same
+      if (originalOrder.length > 0) {
+        updatedData = originalOrder
+          .map((id) => updatedData.find((row) => row.id === id))
+          .filter(Boolean);
+      }
+  
+      setFilteredData(updatedData);
     }
+
+
   }, [ItemList, isItemLoading, ItemEditSuccess, ItemRegSuccess]);
   const Col = [
     { headername: "Item Code", fieldname: "ITEMCODE", type: "String" },
@@ -49,7 +74,7 @@ function ItemTable({setIsDisable}) {
 
   const ActionFunc = (tabIndex) => {
     setParams((prev) => ({ ...prev, IsAction: true, ActionID: tabIndex }));
-    setIsDisable(true)
+    setIsDisable(true);
     const selectedData = filteredData[tabIndex];
     if (selectedData) {
       setEditedData({
@@ -58,6 +83,12 @@ function ItemTable({setIsDisable}) {
         DESCRIPTION: selectedData.DESCRIPTION || "",
       });
     }
+  };
+
+  const applyFilter = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+    // Store the current visible order
+    setOriginalOrder(newFilteredData.map((row) => row.id));
   };
 
   const SortingFunc = (header, type) => {
@@ -76,6 +107,7 @@ function ItemTable({setIsDisable}) {
     }
 
     setFilteredData(result);
+    applyFilter(result)
   };
   const OnChangeHandler = (index, e) => {
     let key = e.target.name;
@@ -83,44 +115,36 @@ function ItemTable({setIsDisable}) {
     setEditedData({ ...editedData, [key]: value });
   };
   const SaveChange = () => {
-    console.log("Saving changes...", editedData);
+    //console.log("Saving changes...", editedData);
     // EditArtisanFunc(editedData);
-    EditItemFunc({...editedData});
+    EditItemFunc({ ...editedData });
   };
-    useEffect(() => {
-      if (isItemEditLoading && !ItemEditSuccess && !ItemEditError) {
-        toast.play("pleaes wait...", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      } else if (
-        ItemEditSuccess &&
-        !isItemEditLoading &&
-        !ItemEditError
-      ) {
-        toast.success("Item Edited Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        setParams({ ActionID: -1, IsAction: false });
-        setEditedData({
-          id:null,
-          ITEMCODE: null,
-          DESCRIPTION: null,
-        });
-        setIsDisable(false)
-        ClearStateEditItem();
-      } else if (
-        ItemEditError &&
-        !isItemEditLoading &&
-        !ItemEditSuccess
-      ) {
-        toast.error(ItemEditError, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      }
-    }, [isItemEditLoading, ItemEditSuccess, ItemEditError]);
+  useEffect(() => {
+    if (isItemEditLoading && !ItemEditSuccess && !ItemEditError) {
+      toast.play("pleaes wait...", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } else if (ItemEditSuccess && !isItemEditLoading && !ItemEditError) {
+      toast.success("Item Edited Successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setParams({ ActionID: -1, IsAction: false });
+      setEditedData({
+        id: null,
+        ITEMCODE: null,
+        DESCRIPTION: null,
+      });
+      setIsDisable(false);
+      ClearStateEditItem();
+    } else if (ItemEditError && !isItemEditLoading && !ItemEditSuccess) {
+      toast.error(ItemEditError, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  }, [isItemEditLoading, ItemEditSuccess, ItemEditError]);
   return (
     <div id="table-box" style={{ height: "50vh" }}>
       {!isItemLoading &&

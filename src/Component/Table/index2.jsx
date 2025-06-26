@@ -35,7 +35,7 @@ function Table({
   isPrint,
   handleprint,
 }) {
-  console.log(process.env.REACT_APP_BASEURL_IMAGE);
+  //console.log(process.env.REACT_APP_BASEURL_IMAGE);
   return (
     <table className="table table-responsive table-sm table-hover align-middle mytable">
       <thead>
@@ -160,29 +160,33 @@ function Table({
                           )
                         ) : field?.fieldname === "Img" ? (
                           <a
-                          href={`${
-                            process.env.REACT_APP_BASEURL_IMAGE
-                          }/images/${item[field?.fieldname] || "default-image.jpg"}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ textDecoration: "none" }}
-                        >
-                          <img
-                            src={`${
+                            href={`${
                               process.env.REACT_APP_BASEURL_IMAGE
-                            }/images/${item[field?.fieldname] || "default-image.jpg"}`}
-                            alt="img"
-                            style={{
-                              width: "100%",
-                              height: "50px",
-                              cursor: "pointer",
-                            }}
-                            onError={(e) => {
-                              e.target.onerror = null; // Prevent infinite loop
-                               e.target.src =defaultimage ; // Set default image
-                            }}
-                          />
-                        </a>
+                            }/images/${
+                              item[field?.fieldname] || "default-image.jpg"
+                            }`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ textDecoration: "none" }}
+                          >
+                            <img
+                              src={`${
+                                process.env.REACT_APP_BASEURL_IMAGE
+                              }/images/${
+                                item[field?.fieldname] || "default-image.jpg"
+                              }`}
+                              alt="img"
+                              style={{
+                                width: "100%",
+                                height: "50px",
+                                cursor: "pointer",
+                              }}
+                              onError={(e) => {
+                                e.target.onerror = null; // Prevent infinite loop
+                                e.target.src = defaultimage; // Set default image
+                              }}
+                            />
+                          </a>
                         ) : // item[field?.fieldname]
                         field?.fieldname == "SampleRcpVou" ? (
                           item[field?.fieldname] == "null" ||
@@ -199,41 +203,37 @@ function Table({
                       </td>
                     );
                   })}
-                {isKarigarButton
-                  ? (console.log(isIcon, "isIcon"),
-                    (
-                      <td>
-                        {item?.[receive] !== 1 ? (
-                          <button
-                            className="btn btn-link"
-                            onClick={() => KarigarReceiveFunc(index)}
-                            // disabled={!isIcon}
-                            disabled={isIcon == true ? false : true}
-                            style={{
-                              cursor: isIcon ? "pointer" : "not-allowed",
-                            }}
-                          >
-                            <i
-                              // disabled={isIcon==true ? false:true}
-                              className="bi bi-clipboard-check"
-                              style={{
-                                color: isIcon ? "purple" : "grey",
-                                fontSize: "22px",
-                              }}
-                            ></i>
-                          </button>
-                        ) : (
-                          (console.log(isIcon, "isIcon"),
-                          (
-                            <i
-                              className="bi bi-check2-circle"
-                              style={{ color: "lightgreen", fontSize: "25px" }}
-                            ></i>
-                          ))
-                        )}
-                      </td>
-                    ))
-                  : null}
+                {isKarigarButton ? (
+                  //console.log(isIcon, "isIcon"),
+                  <td>
+                    {item?.[receive] !== 1 ? (
+                      <button
+                        className="btn btn-link"
+                        onClick={() => KarigarReceiveFunc(index)}
+                        // disabled={!isIcon}
+                        disabled={isIcon == true ? false : true}
+                        style={{
+                          cursor: isIcon ? "pointer" : "not-allowed",
+                        }}
+                      >
+                        <i
+                          // disabled={isIcon==true ? false:true}
+                          className="bi bi-clipboard-check"
+                          style={{
+                            color: isIcon ? "purple" : "grey",
+                            fontSize: "22px",
+                          }}
+                        ></i>
+                      </button>
+                    ) : (
+                      //console.log(isIcon, "isIcon"),
+                      <i
+                        className="bi bi-check2-circle"
+                        style={{ color: "lightgreen", fontSize: "25px" }}
+                      ></i>
+                    )}
+                  </td>
+                ) : null}
                 {isDespatchButton ? (
                   <td>
                     {item?.[despatch] !== 1 ? (
@@ -264,7 +264,7 @@ function Table({
                       item["SampleRcpVou"] == "null" ||
                       item["SampleRcpVou"] == "" ||
                       item["SampleRcpVou"] == undefined ||
-                      item["SampleRcpVou"] == null  ? (
+                      item["SampleRcpVou"] == null ? (
                         <span style={{ color: "black" }}>N/A</span>
                       ) : (
                         <button

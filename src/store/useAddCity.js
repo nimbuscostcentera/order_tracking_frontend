@@ -14,8 +14,12 @@ const useAddCity = create((set) => ({
         const { response } = data;
         set({ AddCitySuccess:response, isAddCityLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ AddCityError: error?.response?.data?.response, isAddCityLoading: false ,AddCitySuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        AddCityError: error?.response?.data?.response,
+        isAddCityLoading: false,
+        AddCitySuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateCityAdd: () => {

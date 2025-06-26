@@ -59,7 +59,7 @@ function CustomerOrder({ isDisable }) {
       ClearStatePlaceOrder();
     }
   }, [CustOrderSuccess]);
-  console.log(custOrderData);
+  //console.log(custOrderData);
   const Artisan = useMemo(() => {
     return ArtisanList.map((item) => ({
       label: `${item?.NAME}:${item?.CODE}`,
@@ -76,7 +76,7 @@ function CustomerOrder({ isDisable }) {
 
   const col = [
     {
-      label: "Customer",
+      label: "Customer*",
       key: "id_customer",
       type: "text",
       AutoSearch: true,
@@ -86,18 +86,18 @@ function CustomerOrder({ isDisable }) {
       data: Customer || [],
       width: "135px",
     },
-    { label: "OrderDate", key: "OrderDate", type: "Date" },
+    { label: "OrderDate*", key: "OrderDate", type: "Date" },
     { label: "Image", key: "Img", type: "file" },
     {
-      label: "Customer RefNo.",
+      label: "Customer RefNo*",
       key: "SampleRcpVou",
       type: "text",
       width: "135px",
     },
-    { label: "Description", key: "Desc", type: "String", width: "160px" },
-    { label: "Weight", key: "Wt", type: "number", width: "130px" },
+    { label: "Description*", key: "Desc", type: "String", width: "160px" },
+    { label: "Weight*", key: "Wt", type: "number", width: "130px" },
     {
-      label: "Karigar",
+      label: "Karigar*",
       key: "Karigar",
       type: "String",
       AutoSearch: true,
@@ -107,7 +107,7 @@ function CustomerOrder({ isDisable }) {
       data: Artisan || [],
       width: "130px",
     },
-    { label: "Karigar Wt.", key: "Karigarwt", type: "number", width: "130px" },
+    // { label: "Karigar Wt.", key: "Karigarwt", type: "number", width: "130px" },
     {
       label: "Sample Vou.",
       key: "isChecked",
@@ -150,10 +150,10 @@ function CustomerOrder({ isDisable }) {
     if (
       !custOrderData[0].Desc ||
       !custOrderData[0].Karigar ||
-      !custOrderData[0].Karigarwt ||
       !custOrderData[0].OrderDate ||
       !custOrderData[0].Wt ||
-      !custOrderData[0].SampleRcpVou
+      !custOrderData[0].SampleRcpVou ||
+      !custOrderData[0].id_customer
     ) {
       toast.error("All fields are required!", {
         position: "top-right",

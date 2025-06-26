@@ -16,8 +16,12 @@ const useRegCustomer = create((set) => ({
         
         set({ CustRegSuccess:response, isCustRegLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ CustRegError: error?.response?.data?.response, isCustRegLoading: false ,CustRegSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        CustRegError: error?.response?.data?.response,
+        isCustRegLoading: false,
+        CustRegSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateInserCust: () => {

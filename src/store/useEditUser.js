@@ -8,7 +8,7 @@ const useEditUser = create((set) => ({
   UserEditError: null,
 
   EditUserFunc: async (userdata) => {
-    console.log(userdata, "city edit");
+    //console.log(userdata, "city edit");
     set({
       isUserEditLoading: true,
       UserEditError: null,
@@ -23,7 +23,7 @@ const useEditUser = create((set) => ({
         UserEditError: null,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         UserEditError: error?.response?.data?.response,
         isUserEditLoading: false,

@@ -22,7 +22,7 @@ const useEditCustomerOrder = create((set) => ({
         CustOrderEditError: null,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         CustOrderEditError: error?.response?.data?.response,
         isCustOrderEditLoading: false,

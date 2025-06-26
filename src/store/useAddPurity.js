@@ -8,17 +8,24 @@ const useAddPurity = create((set) => ({
   AddPurityError: null,
 
   InsertPurity: async (citydata) => {
-    console.log(citydata,"citydata")
-    set({ isAddPurityLoading: true, AddPurityError: null, AddPuritySuccess:null}); // Start loading
+    //console.log(citydata,"citydata")
+    set({
+      isAddPurityLoading: true,
+      AddPurityError: null,
+      AddPuritySuccess: null,
+    }); // Start loading
     try {
-        const { data } =await axios.post(API, citydata);
-        const { response } = data;
-        
-        
-        set({ AddPuritySuccess:response, isAddPurityLoading: false }); // Update state with fetched data
+      const { data } = await axios.post(API, citydata);
+      const { response } = data;
+
+      set({ AddPuritySuccess: response, isAddPurityLoading: false }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ AddPurityError: error?.response?.data?.response, isAddPurityLoading: false ,AddPuritySuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        AddPurityError: error?.response?.data?.response,
+        isAddPurityLoading: false,
+        AddPuritySuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateAddPurity: () => {

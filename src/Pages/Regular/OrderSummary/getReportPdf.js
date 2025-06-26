@@ -1,137 +1,279 @@
 import jsPDF from "jspdf";
 import moment from "moment";
+import { autoTable } from "jspdf-autotable";
+
+// const GetReportPdf = (data) => {
+//   let itemData = data?.Detail || [];
+//   let totalWt = itemData.reduce((accum, item) => accum + (item?.wt || 0), 0);
+
+//   const doc = new jsPDF({
+//     orientation: "portrait",
+//     unit: "pt",
+//     format: [288, 300],
+//   });
+
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const totalTableWidth = pageWidth - 40;
+//   const leftMargin = 20;
+//   const topMargin = 30;
+
+//   const colWidths = [
+//     totalTableWidth * 0.3,
+//     totalTableWidth * 0.3,
+//     totalTableWidth * 0.2,
+//     totalTableWidth * 0.2,
+//   ];
+
+//   const secondTableColWidths = [
+//     totalTableWidth * 0.3,
+//     totalTableWidth * 0.5,
+//     totalTableWidth * 0.2,
+//   ];
+
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(12);
+//   doc.text("Regular Order Invoice", pageWidth / 2, 20, { align: "center" });
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(8);
+//   let currentY = topMargin;
+
+//   const addCell = (text, x, y, width, isHeader = false) => {
+//     doc.setFont("helvetica", isHeader ? "bold" : "normal");
+//     const fontSize = doc.internal.getFontSize();
+//     const lineHeight = fontSize;
+//     const textLines = doc.splitTextToSize(text, width - 4);
+//     const cellHeight = Math.max(textLines.length * lineHeight + 6, 20);
+//     let yOffset = y + 3 + lineHeight / 2;
+//     textLines.forEach((line) => {
+//       doc.text(line, x + 6, yOffset, { align: "left", baseline: "middle" });
+//       yOffset += lineHeight;
+//     });
+//     return cellHeight;
+//   };
+
+//   const headers = ["Order No","Order Date", "Karigar Code", "Purity"];
+//   let currentX = leftMargin;
+//   let maxHeaderHeight = 0;
+//   headers.forEach((header, i) => {
+//     const cellHeight = addCell(header, currentX, currentY, colWidths[i], true);
+//     maxHeaderHeight = Math.max(maxHeaderHeight, cellHeight);
+//     currentX += colWidths[i];
+//   });
+
+//   currentX = leftMargin;
+//   headers.forEach((_, i) => {
+//     doc.rect(currentX, currentY, colWidths[i], maxHeaderHeight);
+//     currentX += colWidths[i];
+//   });
+
+//   currentY += maxHeaderHeight;
+//   currentX = leftMargin;
+//   const values = [
+//     data.Orderno || "",
+//     data.OrderDate || "",
+//     data.ArtisanCode || "",
+//     data.PURITY || "",
+//   ];
+
+//   let maxDataHeight = 0;
+//   values.forEach((value, i) => {
+//     const cellHeight = addCell(value, currentX, currentY, colWidths[i]);
+//     maxDataHeight = Math.max(maxDataHeight, cellHeight);
+//     currentX += colWidths[i];
+//   });
+
+//   currentX = leftMargin;
+//   values.forEach((_, i) => {
+//     doc.rect(currentX, currentY, colWidths[i], maxDataHeight);
+//     currentX += colWidths[i];
+//   });
+
+//   currentY += maxDataHeight + 10;
+//   const secondHeaders = ["Item Code", "Description", "Weight"];
+//   currentX = leftMargin;
+//   let maxSecondHeaderHeight = 0;
+//   secondHeaders.forEach((header, i) => {
+//     const cellHeight = addCell(
+//       header,
+//       currentX,
+//       currentY,
+//       secondTableColWidths[i],
+//       true
+//     );
+//     maxSecondHeaderHeight = Math.max(maxSecondHeaderHeight, cellHeight);
+//     currentX += secondTableColWidths[i];
+//   });
+
+//   currentX = leftMargin;
+//   secondHeaders.forEach((_, i) => {
+//     doc.rect(
+//       currentX,
+//       currentY,
+//       secondTableColWidths[i],
+//       maxSecondHeaderHeight
+//     );
+//     currentX += secondTableColWidths[i];
+//   });
+
+//   currentY += maxSecondHeaderHeight;
+//   itemData.forEach((item) => {
+//     currentX = leftMargin;
+//     const itemValues = [
+//       item.Itemcode || "",
+//       item.DESCRIPTION || "",
+//       (item.wt || 0).toFixed(3),
+//     ];
+
+//     let maxItemHeight = 0;
+//     itemValues.forEach((value, i) => {
+//       const cellHeight = addCell(
+//         value,
+//         currentX,
+//         currentY,
+//         secondTableColWidths[i]
+//       );
+//       maxItemHeight = Math.max(maxItemHeight, cellHeight);
+//       currentX += secondTableColWidths[i];
+//     });
+
+//     currentX = leftMargin;
+//     itemValues.forEach((_, i) => {
+//       doc.rect(currentX, currentY, secondTableColWidths[i], maxItemHeight);
+//       currentX += secondTableColWidths[i];
+//     });
+
+//     currentY += maxItemHeight;
+//   });
+
+//    currentX = leftMargin + secondTableColWidths[0] + 10;
+//   let totalWeightRowHeight = addCell(
+//     "Total Weight",
+//     currentX,
+//     currentY,
+//     secondTableColWidths[1] - 10,
+//     true
+//   );
+//   addCell(
+//     totalWt.toFixed(2),
+//     leftMargin + secondTableColWidths[0] + secondTableColWidths[1] ,
+//     currentY,
+//     secondTableColWidths[2],
+//     true,
+//     "right"
+//   );
+//   doc.rect(
+//     currentX - 10,
+//     currentY,
+//     secondTableColWidths[1] + secondTableColWidths[2],
+//     totalWeightRowHeight
+//   );
+
+//   currentY += totalWeightRowHeight;
+//   window.open(doc.output("bloburl"), "_blank");
+// };
 
 const GetReportPdf = (data) => {
-  console.log(data)
-  // console.log(data); // array ascha 
-  //  if (!Array.isArray(data) || data.length === 0) {
-  //    console.error("Invalid or empty data provided to GetReportPdf");
-  //    return;
-  //  }
-
-  let totalWt = data?.Detail?.reduce((accum,item)=>{
-    return accum+item?.wt
-  },0)
-
-  console.log(totalWt)
-  
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "pt",
-    format: [288, 1440], // 4 inches width (288pt) and 20 inches height (1440pt)
-  });
-
+  const doc = new jsPDF();
+  const margin = 10;
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+  const usableWidth = pageWidth - margin * 2;
 
-  // Define table dimensions dynamically
-  const totalTableWidth = pageWidth - 40; // Account for 20pt margin on both sides
-  const leftMargin = 20; // Set left margin
-  const topMargin = 30;
+  // Add border
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.3);
+  doc.rect(margin, margin, usableWidth, pageHeight - margin * 2);
 
-  // Define proportional widths for each column
-  const colWidths = [
-    totalTableWidth * 0.33, // 15% width for Order Date (smaller column)
-    totalTableWidth * 0.33, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.33, // 25% width for Artisan Code
-  ];
-
-  // Add title
+  // Title
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.text("Regular Order Invoice", pageWidth / 2, 20, { align: "center" });
+  doc.setFontSize(14);
+  doc.text("Item Wise Regular Order Report", pageWidth / 2, margin + 10, {
+    align: "center",
+  });
 
-  // Set up table
-  doc.setFontSize(8);
-  const tableTop = topMargin;
-  let currentY = tableTop;
-
-  // Helper function to add cell and return its height
-  const addCell = (text, x, y, width, isHeader = false) => {
-    doc.setFont("helvetica", isHeader ? "bold" : "normal");
-
-    const fontSize = doc.internal.getFontSize();
-    const lineHeight = fontSize;
-    const textLines = doc.splitTextToSize(text, width - 4);
-    const lineCount = textLines.length;
-
-    const cellHeight = Math.max(lineCount * lineHeight + 6, 20); // Minimum height of 20
-
-    let yOffset = y + 3 + lineHeight / 2;
-
-    textLines.forEach((line) => {
-      doc.text(line, x + 2, yOffset, {
-        align: "left",
-        baseline: "middle",
-      });
-      yOffset += lineHeight;
-    });
-
-    return cellHeight;
-  };
-
-  // Draw header row
-  const headers = [
-    "Order No",
-    "Order Date",
-    "Weight",
+  // Prepare data
+  const tableColumn = [
+    { header: "Order No.", dataKey: "Orderno" },
+    { header: "Order Date", dataKey: "OrderDate" },
+    { header: "Karigar Code", dataKey: "ArtisanCode" },
+    { header: "Purity", dataKey: "PURITY" },
   ];
-  let currentX = leftMargin;
-  let maxHeaderHeight = 0;
-  headers.forEach((header, i) => {
-    const cellHeight = addCell(header, currentX, currentY, colWidths[i], true);
-    maxHeaderHeight = Math.max(maxHeaderHeight, cellHeight);
-    currentX += colWidths[i];
+
+  const tableRows =
+    data?.map((item) => ({
+      Orderno: item?.Orderno || "",
+      OrderDate: moment(item?.OrderDate).format("DD/MM/YYYY") || "",
+      ArtisanCode: item?.ArtisanCode || "",
+      PURITY: item?.PURITY || "",
+    })) || [];
+  let startY = margin + 15;
+  // Draw Table
+  autoTable(doc, {
+    head: [tableColumn.map((col) => col.header)],
+    body: tableRows.map((row) => tableColumn.map((col) => row[col.dataKey])),
+    startY: startY,
+    margin: { left: margin + 2, right: margin + 2 },
+    tableWidth: usableWidth - 4,
+    theme: "grid",
+    headStyles: {
+      fillColor: [165, 165, 165],
+      textColor: [0, 0, 0],
+      fontSize: 10,
+    },
+    styles: {
+      fontSize: 9,
+      halign: "center",
+    },
+  });
+  startY = startY + tableRows.length * 15;
+  const printableDetailTable = (data[0]?.Detail).map((item) => ({ ...item }));
+  const detailTableColumn = [
+    { header: "Item Code", dataKey: "Itemcode" },
+    { header: "Description", dataKey: "DESCRIPTION" },
+    { header: "Weight", dataKey: "wt" },
+  ];
+  let totwt = 0;
+  printableDetailTable?.forEach((item) => {
+    totwt += parseFloat(item?.wt);
+  });
+  // Draw Table
+  autoTable(doc, {
+    head: [detailTableColumn.map((col) => col.header)],
+    body: printableDetailTable.map((row) =>
+      detailTableColumn.map((col) => row[col.dataKey])
+    ),
+    startY: startY + 5,
+    margin: { left: margin + 2, right: margin + 2 },
+    tableWidth: usableWidth - 4,
+    theme: "grid",
+    headStyles: {
+      fillColor: [165, 165, 165],
+      textColor: [0, 0, 0],
+      fontSize: 10,
+    },
+    styles: {
+      fontSize: 9,
+      halign: "center",
+    },
+  });
+  startY = startY + printableDetailTable?.length * 14;
+  autoTable(doc, {
+    startY: startY,
+    head: [],
+    body: [["Total Weight", totwt.toFixed(3)]],
+    theme: "grid",
+    margin: { left: margin + 2, right: margin + 2 },
+    styles: {
+      fontSize: 10,
+      halign: "center",
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 149, fontStyle: "bold" },
+      1: { halign: "center", cellWidth: 37 },
+    },
   });
 
-  // Adjust header row to have uniform height
-  currentX = leftMargin;
-  headers.forEach((header, i) => {
-    doc.rect(currentX, currentY, colWidths[i], maxHeaderHeight);
-    currentX += colWidths[i];
-  });
-
-  // Move to data rows
-  currentY += maxHeaderHeight;
-
-  // Draw data rows for each item in the array
-
-  if (data) {
-  
-    currentX = leftMargin;
-    const values = [
-      data.Orderno || "",
-      moment(data.OrderDate).format("DD/MM/YYYY") || "",
-      totalWt.toFixed(3) || "",
-    ];
-  
-    let maxDataHeight = 0;
-    values.forEach((value, i) => {
-      const cellHeight = addCell(value, currentX, currentY, colWidths[i]);
-      maxDataHeight = Math.max(maxDataHeight, cellHeight);
-      currentX += colWidths[i];
-    });
-  
-    // Adjust data row to have uniform height
-    currentX = leftMargin;
-    values.forEach((value, i) => {
-      doc.rect(currentX, currentY, colWidths[i], maxDataHeight);
-      currentX += colWidths[i];
-    });
-  
-    currentY += maxDataHeight;
-  
-    // Add new page if the content exceeds the page height
-    if (currentY + maxDataHeight > pageHeight) {
-      doc.addPage();
-      currentY = topMargin;
-    }
-  } else {
-    console.log("No data available.");
-  }
-  
-
-  // Open PDF in a new tab
+  // Open PDF
   window.open(doc.output("bloburl"), "_blank");
 };
 

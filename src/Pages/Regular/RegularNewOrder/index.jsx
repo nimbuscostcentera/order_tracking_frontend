@@ -27,7 +27,7 @@ function RegularOrder() {
   const [regularData, setRegularData] = useState([
     {
       id: 1,
-      PURITY:null,
+      PURITY: null,
       DESCRIPTION: null,
       OrderDate: currentday.format("YYYY-MM-DD"),
       OrderNo: null,
@@ -42,7 +42,7 @@ function RegularOrder() {
       ],
     },
   ]);
-  console.log(regularData);
+  //console.log(regularData);
   const { user } = useFetchAuth();
   const { ArtisanList, fetchArtisanMaster } = useFetchArtisan();
   const { ArtisanwiseItemList, fetchArtisanwiseItemMaster } =
@@ -63,7 +63,8 @@ function RegularOrder() {
       Name: item?.PURITY,
       Value: item?.id,
     }));
-    return [...arr, ...arr1];
+    let unique= new Set([...arr1])
+    return [...arr, ...unique];
   }, [PurityList]);
 
   const KarigarList = useMemo(() => {
@@ -82,7 +83,7 @@ function RegularOrder() {
 
   const col = [
     {
-      label: "Purity",
+      label: "Purity*",
       key: "PURITY",
       type: "number",
       SelectOption: true,
@@ -90,9 +91,9 @@ function RegularOrder() {
       PlaceHolder: "Purity",
       width: "250px",
     },
-    { label: "OrderDate", key: "OrderDate", type: "Date" },
+    { label: "OrderDate*", key: "OrderDate", type: "Date" },
     {
-      label: "Karigor Code",
+      label: "Karigar Code*",
       key: "Karigr",
       type: "String",
       AutoSearch: true,
@@ -103,7 +104,7 @@ function RegularOrder() {
       width: "200px",
     },
     {
-      label: "Item",
+      label: "Item*",
       key: "ItemCodes",
       type: "String",
       isTableSelection: true,
@@ -125,38 +126,35 @@ function RegularOrder() {
     { label: "Weight", key: "wt", type: "String" },
   ];
 
-const onChangeHandler = (rowIndex, colKey, e) => {
-  const updatedData = [...regularData];
-  updatedData[rowIndex][colKey] = e.target.value;
- setRegularData(updatedData);
-  if (colKey === "Karigr") {
-    setRegularData((prev) => [
-      {
-        ...prev[0], // Keep all previous values
-        ItemCodes: null,
-        data: [
-          {
-            ItemCode: null,
-            Item: null,
-            wt: null,
-          },
-        ],
-      },
-    ]);
+  const onChangeHandler = (rowIndex, colKey, e) => {
+    const updatedData = [...regularData];
+    updatedData[rowIndex][colKey] = e.target.value;
+    setRegularData(updatedData);
+    if (colKey === "Karigr") {
+      setRegularData((prev) => [
+        {
+          ...prev[0], // Keep all previous values
+          ItemCodes: null,
+          data: [
+            {
+              ItemCode: null,
+              Item: null,
+              wt: null,
+            },
+          ],
+        },
+      ]);
 
-    setRows([{ rowid: 1 }]);
-  } 
-   
-  
+      setRows([{ rowid: 1 }]);
+    }
 
-  // console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
-};
-
+    // //console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
+  };
 
   const saveItem = () => {
     let copyarray = [...regularData];
     let modifiedObj = copyarray[0];
-    // console.log(copyarray, indexRow, "hi");
+    // //console.log(copyarray, indexRow, "hi");
     let arr = rows?.map((i) => i?.ItemCode);
     let str = arr.join(", ");
     modifiedObj.ItemCodes = str;
@@ -179,11 +177,11 @@ const onChangeHandler = (rowIndex, colKey, e) => {
       value = e.target.value;
       let arrayItem = ArtisanwiseItemList?.filter((it) => it.Item == value);
       let obj = arrayItem[0];
-      console.log(obj);
+      //console.log(obj);
       let { ITEMCODE } = obj;
       modifiedObj["item"] = value;
       modifiedObj["ItemCode"] = ITEMCODE;
-      // console.log(modifiedObj);
+      // //console.log(modifiedObj);
     }
     setRows((prev) => copyarray);
   };
@@ -191,22 +189,38 @@ const onChangeHandler = (rowIndex, colKey, e) => {
   const SubmitHandler = (e) => {
     e.preventDefault();
     regularData.data = [...rows];
-    console.log(regularData)
-     if(!regularData[0].Karigr || !regularData[0].ItemCodes || !regularData[0].OrderDate ||
-          !regularData[0].PURITY
-         ){
-               toast.error("All fields are required!", {
-                      position: "top-right",
-                      autoClose: 3000,
-                    });
-                    return;   
-         }
+    //console.log(regularData)
+    if (
+      !regularData[0].Karigr ||
+      !regularData[0].ItemCodes ||
+      !regularData[0].OrderDate ||
+      !regularData[0].PURITY
+    ) {
+      toast.error("All fields are required!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     PlaceRegularOrder(regularData[0]);
   };
 
   const handleClose = () => setShowModal(false);
-  const handleOpen = () => setShowModal(true);
+  const handleOpen = () => {
+    if (regularData[0]?.Karigr == null ||
+      regularData[0]?.Karigr == undefined ||
+      regularData[0]?.Karigr == -1 ||
+      regularData[0]?.Karigr == 0
+    ) {
+      toast.error("Karigar Code is required!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    setShowModal(true)
+  };
 
   const addRow = () => {
     const newRow = { rowid: rows.length + 1, ...ItemObj };
@@ -237,12 +251,6 @@ const onChangeHandler = (rowIndex, colKey, e) => {
   }, [ArtisanwiseItemList]);
 
   useEffect(() => {
-    if (isRegularOrderLoading) {
-      toast.play("pleaes wait...", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
     if (RegularOrderSuccess) {
       toast.success("Order Placed Successfully", {
         position: "top-right",
@@ -251,7 +259,7 @@ const onChangeHandler = (rowIndex, colKey, e) => {
       setRegularData([
         {
           id: 1,
-          PURITY:null,
+          PURITY: null,
           DESCRIPTION: null,
           OrderDate: currentday.format("YYYY-MM-DD"),
           OrderNo: null,
@@ -267,7 +275,7 @@ const onChangeHandler = (rowIndex, colKey, e) => {
         },
       ]);
 
-    setRows([{ rowid: 1 }]);
+      setRows([{ rowid: 1 }]);
     }
     if (RegularOrderError && !isRegularOrderLoading && !RegularOrderSuccess) {
       toast.error(RegularOrderError, {
@@ -277,7 +285,7 @@ const onChangeHandler = (rowIndex, colKey, e) => {
     }
     ClearStatePlaceOrder();
   }, [isRegularOrderLoading, RegularOrderSuccess, RegularOrderError]);
-
+console.log(isRegularOrderLoading,"Regular order loading");
   return (
     <div style={{ width: "100%", marginTop: "5px", paddingLeft: "20px" }}>
       <Row style={{ width: "100%" }}>

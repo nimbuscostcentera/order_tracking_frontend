@@ -8,15 +8,27 @@ const useEditPurity = create((set) => ({
   PurityEditError: null,
 
   EditPurityFunc: async (userdata) => {
-    console.log(userdata,"city edit")
-    set({ isPurityEditLoading: true, PurityEditError: null, PurityEditSuccess:null}); // Start loading
+    //console.log(userdata,"city edit")
+    set({
+      isPurityEditLoading: true,
+      PurityEditError: null,
+      PurityEditSuccess: null,
+    }); // Start loading
     try {
-        const { data } =await axios.post(API, userdata);
-        const { response } = data;
-        set({ PurityEditSuccess:response, isPurityEditLoading: false,PurityEditError:null}); // Update state with fetched data
+      const { data } = await axios.post(API, userdata);
+      const { response } = data;
+      set({
+        PurityEditSuccess: response,
+        isPurityEditLoading: false,
+        PurityEditError: null,
+      }); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ PurityEditError: error?.response?.data?.response, isPurityEditLoading: false ,PurityEditSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        PurityEditError: error?.response?.data?.response,
+        isPurityEditLoading: false,
+        PurityEditSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateEditPurity: () => {

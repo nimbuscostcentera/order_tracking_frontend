@@ -127,13 +127,13 @@ function RegularOrderEdit() {
     const updatedData = [...regularData];
     updatedData[rowIndex][colKey] = e.target.value;
     setRegularData(updatedData);
-    // console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
+    // //console.log(`Updated Row ${rowIndex}, ${colKey}:`, e.target.value);
   };
 
   const saveItem = () => {
     let copyarray = [...regularData];
     let modifiedObj = copyarray[0];
-    console.log(copyarray, indexRow, "hi");
+    //console.log(copyarray, indexRow, "hi");
     let arr = rows?.map((i) => i?.ItemCode);
     let str = arr.join(", ");
     modifiedObj.ItemCodes = str;
@@ -156,11 +156,11 @@ function RegularOrderEdit() {
       value = e.target.value;
       let arrayItem = ArtisanwiseItemList?.filter((it) => it.Item == value);
       let obj = arrayItem[0];
-      console.log(obj);
+      //console.log(obj);
       let { ITEMCODE } = obj;
       modifiedObj["item"] = value;
       modifiedObj["ItemCode"] = ITEMCODE;
-      console.log(modifiedObj);
+      //console.log(modifiedObj);
     }
     setRows((prev) => copyarray);
   };
@@ -193,20 +193,20 @@ function RegularOrderEdit() {
     fetchArtisanMaster(user);
   }, []);
   useEffect(() => {
-    // console.log("Useeffect is calling outside ");
+    // //console.log("Useeffect is calling outside ");
     if (regularData[0]?.Karigr != null) {
-      // console.log("Useeffect is calling inside");
+      // //console.log("Useeffect is calling inside");
       fetchArtisanwiseItemMaster({ artisanId: regularData[0]?.Karigr });
     }
   }, [regularData[0]?.Karigr]);
-  // console.log(regularData[0]?.Karigr, "regularData[0]?.Karigr");
+  // //console.log(regularData[0]?.Karigr, "regularData[0]?.Karigr");
 
   useEffect(() => {
     setSelectedItem(ArtisanwiseItemList);
   }, [ArtisanwiseItemList]);
 
   useEffect(() => {
-    console.log(RegularOrderEditSuccess, RegularOrderEditError);
+    //console.log(RegularOrderEditSuccess, RegularOrderEditError);
 
     if (isRegularOrderEditLoading) {
       toast.play("pleaes wait...", {
@@ -237,14 +237,22 @@ function RegularOrderEdit() {
         },
       ]);
     }
-    if (RegularOrderEditError && !isRegularOrderEditLoading && !RegularOrderEditSuccess) {
+    if (
+      RegularOrderEditError &&
+      !isRegularOrderEditLoading &&
+      !RegularOrderEditSuccess
+    ) {
       toast.error(RegularOrderEditError, {
         position: "top-right",
         autoClose: 3000,
       });
     }
     ClearStateRegularOrderEdit();
-  }, [isRegularOrderEditLoading, RegularOrderEditSuccess, RegularOrderEditError]);
+  }, [
+    isRegularOrderEditLoading,
+    RegularOrderEditSuccess,
+    RegularOrderEditError,
+  ]);
 
   return (
     <div style={{ width: "100%", marginTop: "5px", paddingLeft: "20px" }}>

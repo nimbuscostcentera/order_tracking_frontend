@@ -29,13 +29,12 @@ function Setup() {
   } = useSetupEdit();
 
   const OnChangeHandler = (e) => {
-    // console.log(e);
+    // //console.log(e);
     /*************  ✨ Codeium Command 🌟  *************/
-  
-      let key = e.target.name;
-      let value = e.target.value;
-      setSetUpData((prev) => ({ ...prev, [key]: value }));
 
+    let key = e.target.name;
+    let value = e.target.value;
+    setSetUpData((prev) => ({ ...prev, [key]: value }));
   };
 
   const SaveData = () => {

@@ -16,14 +16,14 @@ const useSetupEdit = create((set) => ({
     try {
       const { data } = await axios.post(API, userdata);
       const { response } = data;
-      // console.log(response);
+      // //console.log(response);
       set({
         SetupEditSuccess: response,
         isSetupEditLoading: false,
         SetupEditError: null,
       }); // Update state with fetched data
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       set({
         SetupEditError: error?.response?.data?.response,
         isSetupEditLoading: false,

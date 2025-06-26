@@ -12,7 +12,7 @@ function ReusableDataGrid({
   DataGridHeight,
   width,
 }) {
-  console.log(row);
+  //console.log(row);
 
   return (
     <DataGrid
@@ -34,7 +34,7 @@ function ReusableDataGrid({
       disableMultipleRowSelection
       getRowHeight={() => "auto"}
       onRowSelectionModelChange={(uid) => {
-        console.log(uid);
+        //console.log(uid);
         let len = uid?.length;
         onChangeRow(uid[len - 1]);
       }}

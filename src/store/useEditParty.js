@@ -14,8 +14,12 @@ const useEditParty = create((set) => ({
         const { response } = data;
         set({ PartyEditSuccess:response, isPartyEditLoading: false,PartyEditError:null}); // Update state with fetched data
     } catch (error) {
-        console.log(error);
-      set({ PartyEditError: error?.response?.data?.response, isPartyEditLoading: false ,PartyEditSuccess:null}); // Handle errors
+      //console.log(error);
+      set({
+        PartyEditError: error?.response?.data?.response,
+        isPartyEditLoading: false,
+        PartyEditSuccess: null,
+      }); // Handle errors
     }
   },
   ClearStateEditParty: () => {

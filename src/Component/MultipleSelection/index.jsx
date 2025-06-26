@@ -12,31 +12,34 @@ const MultipleSelection = ({
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  console.log(selectedVal,"Selected value");
+  //console.log(selectedVal,"Selected value");
   const findSelectedValue = () => {
-    // console.log(selectedVal)
-    // console.log(options,"optins");
+    // //console.log(selectedVal)
+    // //console.log(options,"optins");
     // options=options.filter((ite))
     let big = options?.map((item) => Number(item?.value));
-    // console.log(big,"Value");
+    // //console.log(big,"Value");
     const selectedIds = selectedVal?.map((item) => Number(item?.value)) || [];
-// console.log(selectedIds, "selectedIds");
+    // //console.log(selectedIds, "selectedIds");
 
-const filteredData = options.filter(item => !selectedIds.includes(Number(item?.value)));
-// console.log(filteredData, "filteredData");
-options=filteredData
+    const filteredData = options.filter(
+      (item) => !selectedIds.includes(Number(item?.value))
+    );
+    // //console.log(filteredData, "filteredData");
+    options = filteredData;
     // let filteredData=options.filter(item=>  !big.includes(Number(item?.value)))
-    // console.log(filteredData,"filtereddata")
-    let vl = selectedVal?.filter((item,index) => {
-       return big.includes(Number(item?.value))
-    }) || [];
-    // console.log(vl,"v1");
+    // //console.log(filteredData,"filtereddata")
+    let vl =
+      selectedVal?.filter((item, index) => {
+        return big.includes(Number(item?.value));
+      }) || [];
+    // //console.log(vl,"v1");
     // let filteredData= vl.filter((item)=>{
     //   return  !big.includes(item?.value)
     // })
-    // console.log(filteredData,"filtered")
+    // //console.log(filteredData,"filtered")
     let val = vl.map((element) => element?.label);
-    // console.log(val, big, vl,"findme");
+    // //console.log(val, big, vl,"findme");
     return val.join(", ");
   };
   return (

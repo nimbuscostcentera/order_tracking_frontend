@@ -20,8 +20,8 @@ function PurityListEdit() {
   } = useAddPurity();
   
   const OnChangeHandler = (e) => {
-    console.log(e)
-/*************  ✨ Codeium Command 🌟  *************/
+    //console.log(e)
+    /*************  ✨ Codeium Command 🌟  *************/
     if (e.target) {
       let key = e.target.name;
       let value = e.target.value;
@@ -31,7 +31,7 @@ function PurityListEdit() {
     }
     let key = e.target.name;
     let value = e.target.value;
-    setCustData((prev)=>({ ...prev, [key]: value }));
+    setCustData((prev) => ({ ...prev, [key]: value }));
   }
 
   const SaveData = () => {

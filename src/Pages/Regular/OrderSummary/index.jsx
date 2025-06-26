@@ -70,7 +70,7 @@ function RegularOrderWeight() {
 
   const handleprint = () => {
     GetReportPdf(filteredData);
-    // console.log(filteredData);
+    // //console.log(filteredData);
   };
 
   // Item list for dropdown

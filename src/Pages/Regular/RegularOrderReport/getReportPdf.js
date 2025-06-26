@@ -1,122 +1,106 @@
 import jsPDF from "jspdf";
 import moment from "moment";
+import { autoTable } from "jspdf-autotable";
 
 const GetReportPdf = (data) => {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "pt",
-    format: [288, 1440], // 4 inches width (288pt) and 20 inches height (1440pt)
-  });
+  // Initialize jsPDF with autoTable
+  const doc = new jsPDF();
 
+  // Page setup for A4
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 10;
+  const ROWS_PER_PAGE = 30;
 
-  // Define table dimensions dynamically
-  const totalTableWidth = pageWidth - 40; // Account for 20pt margin on both sides
-  const leftMargin = 20; // Set left margin
-  const topMargin = 30;
+  // Set default font
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
 
-  // Define proportional widths for each column
-  const colWidths = [
-    totalTableWidth * 0.20, // 15% width for Order Date (smaller column)
-    totalTableWidth * 0.20, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.20, // 35% width for Order Number (larger column)
-    totalTableWidth * 0.20, // 25% width for Customer Code
-    totalTableWidth * 0.20, // 25% width for Artisan Code
-  ];
+  // Add border
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.3);
+  doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
 
   // Add title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.text("Item wise Regular Order Report", pageWidth / 2, 20, {
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.text("Item Wise Regular Order Report", pageWidth / 2, 20, {
     align: "center",
   });
 
-  // Set up table
-  doc.setFontSize(8);
-  const tableTop = topMargin;
-  let currentY = tableTop;
-
-  // Helper function to add cell and return its height
-  const addCell = (text, x, y, width, isHeader = false) => {
-    doc.setFont("helvetica", isHeader ? "bold" : "normal");
-
-    const fontSize = doc.internal.getFontSize();
-    const lineHeight = fontSize;
-    const textLines = doc.splitTextToSize(text, width - 4);
-    const lineCount = textLines.length;
-
-    const cellHeight = Math.max(lineCount * lineHeight + 6, 20); // Minimum height of 20
-
-    let yOffset = y + 3 + lineHeight / 2;
-
-    textLines.forEach((line) => {
-      doc.text(line, x + 2, yOffset, {
-        align: "left",
-        baseline: "middle",
-      });
-      yOffset += lineHeight;
-    });
-
-    return cellHeight;
-  };
-
-  // Draw header row
-  const headers = ["OrderNo.", "Order Date","Product Code","Karigar Code", "Weight"];
-  let currentX = leftMargin;
-  let maxHeaderHeight = 0;
-  headers.forEach((header, i) => {
-    const cellHeight = addCell(header, currentX, currentY, colWidths[i], true);
-    maxHeaderHeight = Math.max(maxHeaderHeight, cellHeight);
-    currentX += colWidths[i];
+  // Main Items Table
+  let startY = 18;
+  let PrintableRows = data?.map((item) => {
+    return {
+      Orderno: item?.Orderno || "",
+      OrderDate: moment(item?.OrderDate).format("DD/MM/YYYY") || "",
+      Itemcode: item?.Itemcode || "",
+      ArtisanCode: item?.ArtisanCode || "",
+      wt: item?.wt || "",
+    };
   });
 
-  // Adjust header row to have uniform height
-  currentX = leftMargin;
-  headers.forEach((header, i) => {
-    doc.rect(currentX, currentY, colWidths[i], maxHeaderHeight);
-    currentX += colWidths[i];
-  });
+  const tablecol = [
+    { header: "Order No.", key: "Orderno" },
+    { header: "Order Date", key: "OrderDate" },
+    { header: "Product Code", key: "Itemcode" },
+    { header: "Karigar Code", key: "ArtisanCode" },
+    { header: "Weight", key: "wt" },
+  ];
 
-  // Move to data rows
-  currentY += maxHeaderHeight;
-
-  // Draw data rows for each item in the array
-  data.forEach((item) => {
-    currentX = leftMargin;
-    const values = [
-      item?.Orderno || "",
-      item?.OrderDate || "",
-      item?.Itemcode || "",
-      item?.ArtisanCode,
-      item?.wt || "",
-    ];
-
-    let maxDataHeight = 0;
-    values.forEach((value, i) => {
-      const cellHeight = addCell(value, currentX, currentY, colWidths[i]);
-      maxDataHeight = Math.max(maxDataHeight, cellHeight);
-      currentX += colWidths[i];
-    });
-
-    // Adjust data row to have uniform height
-    currentX = leftMargin;
-    values.forEach((value, i) => {
-      doc.rect(currentX, currentY, colWidths[i], maxDataHeight);
-      currentX += colWidths[i];
-    });
-
-    currentY += maxDataHeight;
-
-    // Add new page if the content exceeds the page height
-    if (currentY + maxDataHeight > pageHeight) {
+  let rowsPerPage = ROWS_PER_PAGE;
+  for (let i = 0; i < PrintableRows.length; i += rowsPerPage) {
+    if (i !== 0) {
       doc.addPage();
-      currentY = topMargin;
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.3);
+      doc.rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
+      startY = 5;
     }
-  });
+    rowsPerPage = i == 0 ? ROWS_PER_PAGE : 35;
 
-  // Open PDF in a new tab
+    autoTable(doc, {
+      startY: startY + 10,
+      tableWidth: pageWidth - margin * 2 - 4,
+      head: [tablecol?.map((col) => col?.header)],
+      body: PrintableRows?.slice(i, i + rowsPerPage).map((row) =>
+        tablecol.map((col) => row[col?.key])
+      ),
+      theme: "grid",
+      headStyles: {
+        fillColor: [165, 165, 165],
+        textColor: [0, 0, 0],
+        halign: "center",
+      },
+      margin: { left: margin + 2, right: margin + 2 },
+      styles: { fontSize: 10 },
+      columnStyles: {
+        0: { cellWidth: "auto", halign: "center" }, // Order No.
+        1: { cellWidth: "auto", halign: "center" }, // Order Date
+        2: { cellWidth: "auto", halign: "center" }, // Product Code
+        3: { cellWidth: "auto", halign: "center" }, // Karigar Code
+        4: { cellWidth: "auto", halign: "center" }, // Weight
+      },
+    });
+  }
+
+  // Add footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, pageHeight - 5);
+    doc.text(
+      `Generated: ${moment().format("DD/MM/YYYY HH:mm")}`,
+      5,
+      pageHeight - 5
+    );
+  }
+
+  // Save the PDF
   window.open(doc.output("bloburl"), "_blank");
 };
+
 
 export default GetReportPdf;

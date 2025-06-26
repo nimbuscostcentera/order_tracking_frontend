@@ -68,8 +68,8 @@ function Table({
               );
             })}
           {isCheckButton ? (
-            <th scope="col" style={{ minWidth: "100px" }}>
-              Sample Vou. Receive
+            <th scope="col" style={{ minWidth: "130px"}}>
+              Sample Receive
             </th>
           ) : null}
           {isKarigarButton ? (

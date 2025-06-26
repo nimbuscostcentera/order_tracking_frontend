@@ -26,12 +26,13 @@ function OrderTable() {
   const [filteredData, setFilteredData] = useState([]);
   const [detailData, setdetailData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [modalSearchQuery,setModalSearchQuery]=useState("")
+  const [modalSearchQuery, setModalSearchQuery] = useState("")
+   const [originalOrder, setOriginalOrder] = useState([]);
   let itemObj = {
     wt: null,
     Itemcode: null,
     Item: null,
-    DESCRIPTION:null
+    DESCRIPTION: null,
   };
   const [detailData2, setdetailData2] = useState([{ rowid: 1, ...itemObj }]);
   const [showModal, setShowModal] = useState(false);
@@ -131,7 +132,7 @@ function OrderTable() {
       type: "String",
       isNotEditable: false,
     },
-    { headername: "Karigor Code", fieldname: "ArtisanCode", type: "String" },
+    { headername: "Karigar Code", fieldname: "ArtisanCode", type: "String" },
   ];
   const EditColMain = [
     {
@@ -143,7 +144,7 @@ function OrderTable() {
       PlaceHolder: "Purity",
     },
     {
-      label: "Karigor Code",
+      label: "Karigar Code",
       key: "Karigr",
       type: "String",
       AutoSearch: true,
@@ -167,7 +168,7 @@ function OrderTable() {
     {
       label: "Item",
       key: "Item",
-      type: "String",
+      type: "String", 
       AutoSearch: true,
       data: SelectItem || [],
       SearchValue: "Item",
@@ -206,7 +207,7 @@ function OrderTable() {
         wt: item?.wt,
         Itemcode: item?.Itemcode,
         Item: item?.Item,
-        DESCRIPTION:item?.DESCRIPTION
+        DESCRIPTION: item?.DESCRIPTION,
       };
       return obj;
     });
@@ -218,10 +219,15 @@ function OrderTable() {
     const today = new Date().toISOString().split("T")[0];
     data.RcvDt = today;
     await UpdateRegularRcv(data); // Update the record
-    fetchRegularMaster({ today }); // Refetch RegularList immediately
+    fetchRegularMaster({ today, Rcv:2 }); // Refetch RegularList immediately
     setShowModal(false); // Close modal after update
   };
   //For sorting
+  const applyFilter = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+    // Store the current visible order
+    setOriginalOrder(newFilteredData.map((row) => row.id));
+  };
   const SortingFunc = (header, type) => {
     if (!filteredData || filteredData.length === 0) {
       // console.error("No data to sort");
@@ -232,16 +238,16 @@ function OrderTable() {
 
     let result;
     if (type === "String") {
-      console.log("In string");
-      if (params.viewIndex != null) {
-        result = SortArrayByString(
-          newOrder,
-          filteredData[params.viewIndex].Detail,
-          header
-        );
-      } else {
-        result = SortArrayByString(newOrder, filteredData, header);
-      }
+      //console.log("In string");
+      // if (params.viewIndex != null) {
+      //   result = SortArrayByString(
+      //     newOrder,
+      //     filteredData,
+      //     header
+      //   );
+      // } else {
+      result = SortArrayByString(newOrder, filteredData, header);
+      // }
     } else if (type === "Date") {
       result = SortArrayByDate(newOrder, filteredData, header);
     } else if (type === "number") {
@@ -249,6 +255,33 @@ function OrderTable() {
     }
 
     setFilteredData(result);
+    applyFilter(result)
+  };
+  const SortingFuncSub = (header, type) => {
+    if (!detailData || detailData.length === 0) {
+      // console.error("No data to sort");
+      return;
+    }
+    //console.log(detailData,header,type,"fnd");
+
+    const currentOrder = checkOrder(detailData, header);
+    const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
+
+    let result;
+    if (type === "String") {
+      //console.log("In string");
+      if (params.viewIndex != null) {
+        result = SortArrayByString(newOrder, detailData, header);
+      } else {
+        result = SortArrayByString(newOrder, detailData, header);
+      }
+    } else if (type === "Date") {
+      result = SortArrayByDate(newOrder, detailData, header);
+    } else if (type === "number") {
+      result = SortArrayByNumber(newOrder, detailData, header);
+    }
+
+    setdetailData(result);
   };
   const addRow = () => {
     const newRow = { rowid: detailData2.length + 1, ...itemObj };
@@ -261,7 +294,7 @@ function OrderTable() {
     for (let i = 0; i < n; i++) {
       ExistingRows[i].rowid = i + 1;
     }
-    
+
     setdetailData2(ExistingRows);
   };
   const handleprint = (index) => {
@@ -304,7 +337,7 @@ function OrderTable() {
       value = e.target.value;
       let arrayItem = ArtisanwiseItemList?.filter((it) => it.Item == value);
       let obj = arrayItem[0];
-      console.log(obj);
+      //console.log(obj);
       let { ITEMCODE } = obj;
       modifiedObj["Item"] = value;
       modifiedObj["Itemcode"] = ITEMCODE;
@@ -322,18 +355,41 @@ function OrderTable() {
     HandleEditModeClose();
   };
 
-  const handleSearch = (e) => {
+const handleSearch = (e) => {
+  const value = e.target.value.toLowerCase();
+  setSearchQuery(value);
+  // Extract valid field names from the Col array
+  const validFields = Col.map((col) => col.fieldname);
+
+  const filtered = RegularList.filter((order) =>
+    validFields.some((field) =>
+      order[field]?.toString().toLowerCase().includes(value)
+    )
+  );
+
+  setFilteredData(filtered);
+};
+  let originalData = [...detailData];
+  const handleSearch2 = (e) => {
     const value = e.target.value.toLowerCase();
-    setSearchQuery(value);
+    //console.log(value, "value2");
+    setModalSearchQuery(value);
 
-    const filtered = RegularList.filter((order) =>
-      Object.values(order).some((field) =>
-        field?.toString().toLowerCase().includes(value)
-      )
-    );
+    if (value === "") {
+      setdetailData([...originalData]); // Reset to original data
+    } else {
+      const filtered = originalData.filter(
+        (item) =>
+          item.Itemcode.toLowerCase().includes(value) ||
+          item.DESCRIPTION.toLowerCase().includes(value) ||
+          item.wt.toString().includes(value) // Ensure weight is compared as a string
+      );
 
-    setFilteredData(filtered);
+      //console.log(filtered, "filtered results");
+      setdetailData(filtered);
+    }
   };
+
   //useEffects rcv toaster
   useEffect(() => {
     if (
@@ -375,12 +431,26 @@ function OrderTable() {
   //api call to rcv
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    fetchRegularMaster({ today }); // Add other fields as required
+    fetchRegularMaster({ today, Rcv: 2 }); // Add other fields as required
   }, [UpdateRegularRcvSuccess, RegularOrderEditSuccess, RegularOrderSuccess]);
   //set regulardata in filterdata
   useEffect(() => {
+    // if (RegularList?.length > 0) {
+    //   setFilteredData(RegularList); // Properly update filteredData
+    // }
     if (RegularList?.length > 0) {
-      setFilteredData(RegularList); // Properly update filteredData
+      let updatedData = RegularList.map((regular) => ({
+        ...regular,
+      }));
+
+      // Ensure the order remains the same
+      if (originalOrder.length > 0) {
+        updatedData = originalOrder
+          .map((id) => updatedData.find((row) => row.id === id))
+          .filter(Boolean);
+      }
+
+      setFilteredData(updatedData);
     }
   }, [
     RegularList,
@@ -392,36 +462,49 @@ function OrderTable() {
   useEffect(() => {
     if (UpdateRegularRcvSuccess) {
       const today = new Date().toISOString().split("T")[0];
-      fetchRegularMaster({ today }); // Refetch RegularList after update
+      fetchRegularMaster({ today, Rcv: 2 }); // Refetch RegularList after update
       setShowModal(false); // Close the modal after success
+    }
+    if (originalOrder.length > 0 && RegularList?.length > 0) {
+      const sortedData = originalOrder
+        .map((id) => RegularList.find((row) => row.id === id))
+        .filter(Boolean);
+
+      setFilteredData(sortedData);
     }
   }, [UpdateRegularRcvSuccess]);
   //to trigger print option
   useEffect(() => {
     if (params.printId !== -1) {
-      // console.log(filteredData[params.printId]?.Orderno);
+      // //console.log(filteredData[params.printId]?.Orderno);
       FetchRegularOrderSummary({
         Orderno: filteredData[params.printId]?.Orderno,
       });
     }
   }, [trigger]);
+  
   //to print receipt
   useEffect(() => {
     if (params.printId !== -1) {
-      GetReportPdf(filteredData[params.printId]);
+      console.log(filteredData[params.printId]);
+      GetReportPdf([filteredData[params.printId]]);
       ClearSummeryRegularOrder();
     }
   }, [RegularOrderSummaryList]);
+
   useEffect(() => {
     fetchPurityMaster(user);
+    fetchArtisanMaster(user);
   }, []);
+
   useEffect(() => {
     if (EditData[0]?.Karigr) {
       fetchArtisanwiseItemMaster({ artisanId: EditData[0]?.Karigr });
     }
   }, [EditData[0]?.Karigr]);
+
   useEffect(() => {
-    console.log(RegularOrderEditSuccess, RegularOrderEditError);
+    //console.log(RegularOrderEditSuccess, RegularOrderEditError);
 
     if (isRegularOrderEditLoading) {
       toast.play("pleaes wait...", {
@@ -452,7 +535,7 @@ function OrderTable() {
     RegularOrderEditError,
   ]);
 
-  console.log(detailData,"detaildata")
+  //console.log(detailData,"detaildata")
   return (
     <div>
       <ToastContainer />
@@ -469,7 +552,7 @@ function OrderTable() {
           style={{ boxShadow: "none", outline: "none", borderColor: "#ccc" }}
         />
       </InputGroup>
-      <div id="table-box" style={{height:"50vh"}}>
+      <div id="table-box" style={{ height: "50vh" }}>
         <Table
           tab={filteredData || []}
           isAction={params?.IsAction}
@@ -509,12 +592,17 @@ function OrderTable() {
                 />
               </InputGroup>
               <Table
-                tab={detailData.filter((item) =>
-                  item.Itemcode.toLowerCase().includes(
-                    modalSearchQuery.toLowerCase()
-                  )
+                tab={detailData.filter(
+                  (item) =>
+                    item.Itemcode.toLowerCase().includes(
+                      modalSearchQuery.toLowerCase()
+                    ) || // Search by Item Code
+                    item.DESCRIPTION.toLowerCase().includes(
+                      modalSearchQuery.toLowerCase()
+                    ) || // Search by Description
+                    item.wt.toString().includes(modalSearchQuery) // Search by Weight
                 )}
-                onSorting={SortingFunc}
+                onSorting={SortingFuncSub}
                 Col={Col1}
                 isKarigarButton={true}
                 isIcon={true}

@@ -18,6 +18,9 @@ const useArtisanWiseOrderedItemwt = create((set) => ({
       set({ isArtwtItemError: error.message, isArtwtItemLoading: false }); // Handle errors
     }
   },
+  clearArtWiseItemList: () => {
+    set({isArtwtItemLoading: false, isArtwtItemError: null });
+  }
 }));
 
 export default useArtisanWiseOrderedItemwt;

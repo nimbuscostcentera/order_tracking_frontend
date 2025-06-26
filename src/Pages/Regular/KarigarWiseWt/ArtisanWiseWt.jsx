@@ -14,47 +14,48 @@ import SortArrayByNumber from "../../../GlobalFunctions/SortArrayByNumber";
 import useArtisanWiseWt from "../../../store/useArtisanWiseWt";
 import useFetchAuth from "../../../store/useFetchAuth";
 import useFetchArtisan from "../../../store/useFetchArtisan";
-import useArtisanWiseOrderedItemwt from "../../../store/useArtisanWiseOrderedItemwt"
+import useArtisanWiseOrderedItemwt from "../../../store/useArtisanWiseOrderedItemwt";
 import GetReportPdf from "./getRepoPdf";
 
 import "./report.css";
 import moment from "moment";
 function ArtisanWiseWt() {
   // State variables
-
+  const [filteredData, setFilteredData] = useState([]);
+  const [detailData, setDetailData] = useState([]);
   const [params, setParams] = useState({
     ActionID: -1,
     IsAction: false,
     printId: -1,
     ArtisanID: null,
-    showModal:false
+    showModal: false,
   });
-
-  const [filteredData, setFilteredData] = useState([]);
 
   // Store data from Zustand
   const { user } = useFetchAuth();
   // const { ItemList, fetchItemMaster } = useFetchItem();
-  const { fetchArtisanMaster, ArtisanList } = useFetchArtisan();
+  const { fetchArtisanMaster, ArtisanList, isArtwtItemLoading } =
+    useFetchArtisan();
   const {
     RegularByWtError,
     isRegularByWtloading,
     fetchArtisanWiseWt,
     ArtisanWiseWtList,
   } = useArtisanWiseWt();
-  const { fetchArtisanWiseOrderedItemwt,ArtwtItem} = useArtisanWiseOrderedItemwt();
+  const { fetchArtisanWiseOrderedItemwt, ArtwtItem, clearArtWiseItemList } =
+    useArtisanWiseOrderedItemwt();
   // Column definitions for the table
   const Col1 = [
-    { headername: "Artisan Name", fieldname: "name", type: "String" },
-    { headername: "Artisan Code", fieldname: "code", type: "String" },
+    { headername: "Karigar Name", fieldname: "name", type: "String" },
+    { headername: "Karigar Code", fieldname: "code", type: "String" },
     { headername: "Total Weight", fieldname: "totwt", type: "number" },
   ];
   // Column definitions for the Sub table
-    const Col2 = [
-      { headername: "Item Name", fieldname: "DESCRIPTION", type: "String" },
-      { headername: "Item Code", fieldname: "Itemcode", type: "String" },
-      { headername: "Weight", fieldname: "wt", type: "number" },
-    ];
+  const Col2 = [
+    { headername: "Item Name", fieldname: "DESCRIPTION", type: "String" },
+    { headername: "Item Code", fieldname: "Itemcode", type: "String" },
+    { headername: "Weight", fieldname: "wt", type: "number" },
+  ];
 
   const SortingFunc = (header, type) => {
     const currentOrder = checkOrder(filteredData, header);
@@ -70,17 +71,44 @@ function ArtisanWiseWt() {
     setFilteredData(result);
   };
 
+  const SortingFuncSub = (header, type) => {
+    if (!detailData || detailData.length === 0) {
+      // console.error("No data to sort");
+      return;
+    }
+    //console.log(detailData, header, type, "fnd");
+
+    const currentOrder = checkOrder(detailData, header);
+    const newOrder = currentOrder === "Asc" ? "Desc" : "Asc";
+
+    let result;
+    if (type === "String") {
+      //console.log("In string");
+      if (params.viewIndex != null) {
+        result = SortArrayByString(newOrder, detailData, header);
+      } else {
+        result = SortArrayByString(newOrder, detailData, header);
+      }
+    } else if (type === "Date") {
+      result = SortArrayByDate(newOrder, detailData, header);
+    } else if (type === "number") {
+      result = SortArrayByNumber(newOrder, detailData, header);
+    }
+
+    setDetailData(result);
+  };
+
   const OnChangeHandler = (e) => {
     let key = e.target.name;
     let value = e.target.value;
     setParams({ ...params, [key]: value });
-    console.log(params, "params");
-    
+    //console.log(params, "params");
   };
   const handleprint = () => {
+    console.log(filteredData, "filteredData");
     GetReportPdf(filteredData);
   };
-  console.log(ArtisanWiseWtList, "regularByWt");
+  //console.log(ArtisanWiseWtList, "regularByWt");
 
   // Item list for dropdown
   const SelectArtisanList = useMemo(() => {
@@ -111,34 +139,37 @@ function ArtisanWiseWt() {
     }
   };
 
-
   // useEffects
   useEffect(() => {
     fetchArtisanMaster();
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    fetchArtisanWiseWt({ today:today, ...user }); // Add other fields as required
+    fetchArtisanWiseWt({ today: today, ...user }); // Add other fields as required
   }, [user]);
 
   useEffect(() => {
     filterCustomerData();
   }, [ArtisanWiseWtList, params.ArtisanID]);
 
-    const handleViewClick = (index) => {
+  const handleViewClick = (index) => {
     setParams((prev) => ({ ...prev, viewIndex: index }));
-      setParams({ ...params, showModal: true });
-    const  today=moment().format("YYYY-MM-DD");
+    setParams({ ...params, showModal: true });
+    const today = moment().format("YYYY-MM-DD");
     fetchArtisanWiseOrderedItemwt({ Karigr: filteredData[index]?.ID, today });
   };
+  useEffect(() => {
+    setDetailData(ArtwtItem);
+    clearArtWiseItemList();
+  }, [isArtwtItemLoading, ArtwtItem]);
   const handleClose = () => {
-  setParams({...params, showModal:false});
-};
+    setParams({ ...params, showModal: false });
+  };
   return (
     <Container fluid style={{ width: "100%", padding: 0 }}>
       <Row style={{ marginTop: "60px", marginLeft: "3px", width: "98%" }}>
         {/* Header Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <div className="d-flex justify-content-between align-items-center">
-            <h5>Artisan Wise Regular Order Report</h5>
+            <h5>Karigar Wise Regular Order Report</h5>
             <button
               className="btn"
               style={{
@@ -214,7 +245,11 @@ function ArtisanWiseWt() {
               handleClose={handleClose}
               body={
                 <>
-                  <Table tab={ArtwtItem} Col={Col2} />
+                  <Table
+                    tab={detailData}
+                    Col={Col2}
+                    onSorting={SortingFuncSub}
+                  />
                 </>
               }
               Title={"Items"}

@@ -38,7 +38,7 @@ const { ItemList, fetchItemMaster } = useFetchItem();
   const Col1 = [
     { headername: "OrderNo", fieldname: "Orderno", type: "String" },
     { headername: "OrderDate", fieldname: "OrderDate", type: "Date" },
-    { headername: "Artisan Code", fieldname: "ArtisanCode", type: "String" },
+    { headername: "Karigar Code", fieldname: "ArtisanCode", type: "String" },
     { headername: "Item Code", fieldname: "Itemcode", type: "String" },
     { headername: "Weight", fieldname: "wt", type: "number" },
   ];
@@ -52,9 +52,9 @@ const { ItemList, fetchItemMaster } = useFetchItem();
 
     return data.flatMap((order) => {
       // For each order, create a new object for every detail item
-      return order.Detail.map(({Rcv, Itemcode, wt }) => ({
-          ...order,
-          Rcv,
+      return order.Detail.map(({ Rcv, Itemcode, wt }) => ({
+        ...order,
+        Rcv,
         Itemcode,
         wt,
       }));
@@ -82,7 +82,7 @@ const { ItemList, fetchItemMaster } = useFetchItem();
   };
 
   const handleprint = () => {
-    console.log(filteredData);
+    //console.log(filteredData);
     GetReportPdf(filteredData);
   };
 
@@ -113,44 +113,44 @@ const { ItemList, fetchItemMaster } = useFetchItem();
     }));
   }, [choice]);
 
-const filterCustomerData = () => {
-  let transformedList = transformData(RegularList); // Start with full data
+  const filterCustomerData = () => {
+    let transformedList = transformData(RegularList); // Start with full data
 
-  if (params.ArtisanId) {
-    transformedList = transformedList.filter(
-      (customer) => customer.ArtisanCode === params.ArtisanId
-    );
-  }
+    if (params.ArtisanId) {
+      transformedList = transformedList.filter(
+        (customer) => customer.ArtisanCode === params.ArtisanId
+      );
+    }
 
-  if (params.ItemId) {
-    transformedList = transformedList.filter(
-      (customer) => customer.Itemcode === params.ItemId
-    );
-  }
+    if (params.ItemId) {
+      transformedList = transformedList.filter(
+        (customer) => customer.Itemcode === params.ItemId
+      );
+    }
 
-  if (params.ChoiceId === "Till Pending") {
-    transformedList = transformedList.filter(
-      (customer) => customer.Rcv === null
-    );
-  } else if (params.ChoiceId === "Done") {
-    transformedList = transformedList.filter(
-      (customer) => customer.Rcv !== null
-    );
-  }
+    if (params.ChoiceId === "Till Pending") {
+      transformedList = transformedList.filter(
+        (customer) => customer.Rcv === null
+      );
+    }
+    else if (params.ChoiceId === "Done") {
+      transformedList = transformedList.filter(
+        (customer) => customer.Rcv !== null
+      );
+    }
 
-  setFilteredData(transformedList); // Update state only once
-};
-
+    setFilteredData(transformedList); // Update state only once
+  };
 
   const ActionFunc = () => {};
   const SaveChange = () => {};
 
   // useEffects
   useEffect(() => {
-      fetchArtisanMaster();
-      fetchItemMaster();
+    fetchArtisanMaster();
+    fetchItemMaster();
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    fetchRegularMaster({ today }); // Add other fields as required
+    fetchRegularMaster({ today}); // Add other fields as required
   }, [user]);
 
   useEffect(() => {
@@ -232,7 +232,7 @@ const filterCustomerData = () => {
                 fontWeight: "bold",
               }}
             >
-              Artisan Code:
+              Karigar Code:
             </label>
             <div style={{ width: "auto", zIndex: "95" }}>
               <SearchableDropDown2
@@ -240,7 +240,7 @@ const filterCustomerData = () => {
                 handleChange={OnChangeHandler}
                 label="ArtisanId"
                 selectedVal={params.ArtisanId} // Pass the selected artisan
-                placeholder="Select Artisan"
+                placeholder="Select Karigar"
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ const filterCustomerData = () => {
 
         {/* Table Section */}
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div id="table-box" style={{height:"70vh"}}>
+          <div id="table-box" style={{ height: "70vh" }}>
             <Table
               tab={filteredData || []}
               isAction={params?.IsAction}

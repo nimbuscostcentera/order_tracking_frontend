@@ -24,7 +24,7 @@ function CityListEdit() {
   } = useAddCity();
 
   const OnChangeHandler = (e) => {
-    console.log(e);
+    //console.log(e);
     let key = e.target.name;
     let value = e.target.value;
     setCustData((prev) => ({ ...prev, [key]: value }));
@@ -123,7 +123,7 @@ function CityListEdit() {
                     <i className="bi bi-person-circle"></i>
                   </th>
                   <th>City Code*</th>
-                  <th>DESCRIPTION</th>
+                  <th>City Name*</th>
                 </tr>
               </thead>
               <tbody>

@@ -18,10 +18,10 @@ function StateListEdit() {
   } = useAddState();
 
     const OnChangeHandler = (e) => {
-      console.log(e)
+      //console.log(e)
       let key = e.target.name;
       let value = e.target.value;
-      setCustData((prev)=>({ ...prev, [key]: value }));
+      setCustData((prev) => ({ ...prev, [key]: value }));
     }
 
     const SaveData = () => {

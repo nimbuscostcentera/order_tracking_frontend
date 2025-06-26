@@ -24,18 +24,18 @@ function ResetPage() {
   const [inputVal, setInputVal] = useState({
     company_mobile: true,
     password: true,
-    updatedPass:true
+    updatedPass: true,
   });
   const [data, setData] = useState({
     company_mobile: null,
-      password: null,
-    updatedPass:null
+    password: null,
+    updatedPass: null,
   });
 
   //useEffects
   //   useEffect(() => {
-  //     console.log(isSuccess , !isloading, !isError);
-      
+  //     //console.log(isSuccess , !isloading, !isError);
+
   //     if (isSuccess && !isloading && !isError) {
   //         toast.success(userInfo.message, { autoClose: 4000, position: "top-right" });
   //         dispatch(ClearState());
@@ -59,11 +59,11 @@ function ResetPage() {
     event.preventDefault();
     let newFormdata = new FormData();
     Object.keys(data).map((key) => {
-      console.log(key, data[key]);
+      //console.log(key, data[key]);
       newFormdata.set(key, data[key]);
     });
     for (var pair of newFormdata.entries()) {
-      console.log(pair[0] + ":" + pair[1]);
+      //console.log(pair[0] + ":" + pair[1]);
     }
     //dispatch(resetpass(newFormdata));
   };

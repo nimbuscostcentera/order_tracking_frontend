@@ -39,23 +39,22 @@ function LoginPage() {
     PhoneNumber: null,
     password: null,
   });
-// console.log(userInfo,)
+  // //console.log(userInfo,)
   useEffect(() => {
     if (isAuthSuccess && AccessToken) {
-      navigate("/auth/customer/dashboard")
-    }
-    else if (isAuthError && !isAuthLoading && !isAuthSuccess) {
+      navigate("/auth/customer/dashboard");
+    } else if (isAuthError && !isAuthLoading && !isAuthSuccess) {
       toast.error(AuthError, { autoClose: 4000, position: "top-right" });
     }
     clearStateAuth();
-  }, [isAuthError,AccessToken]); 
+  }, [isAuthError, AccessToken]);
 
   //functions
   const InputHandler = (e) => {
     let key = e.target.name;
     let value = e.target.value;
     let string = value.trimStart();
-    setData((prev)=>({ ...prev, [key]: string }));
+    setData((prev) => ({ ...prev, [key]: string }));
   };
 
   const SubmitHandler = async (event) => {
@@ -64,15 +63,21 @@ function LoginPage() {
   };
 
   return (
-    <Container fluid style={{
-      width: "100vw",
-      height: "95vh",
-      padding: 0,
-      margin:0
-    }}>
+    <Container
+      fluid
+      style={{
+        width: "100%",
+        height: "95vh",
+        padding: 0,
+        margin: 0,
+        display: "flex",
+        justifyContent:"center"
+      }}
+    >
       <ToastContainer />
-      <div className="formWrapper" style={{width:"100%"}}>
-        <div className="form-layout mt-4 pt-2 pb-3 px-3" style={{width:"60vh"}}>
+      <div className="formWrapper">
+        <div
+          className="form-layout mt-4 pt-2 pb-3 px-3">
           <div className="d-flex justify-content-center align-items-center">
             <img src={ImgLogo} width="20%" />
           </div>

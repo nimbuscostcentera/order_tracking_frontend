@@ -40,14 +40,14 @@ AxiosInstance.interceptors.request.use(
       return config;
     }
     catch (error) {
-        console.log(error);
+        //console.log(error);
       // Handle errors in token loading (e.g., token not available)
       return Promise.reject(new Error("Failed to load token."));
     }
   },
   function (error) {
     // Handle request errors (optional)
-    console.log(error);
+    //console.log(error);
     return Promise.reject(error);
   }
 );
@@ -84,7 +84,7 @@ AxiosInstance.interceptors.response.use(
           // Check for a successful response
           if (response.status === 200) {
             // Get the new access token from the response
-            console.log(response);
+            //console.log(response);
             const newAccessToken = response.data?.response?.AccessToken;
 
             // Store the new access token in local storage

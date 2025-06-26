@@ -13,13 +13,13 @@ import PhnoValidation from "../../GlobalFunctions/PhnoValidation.js";
 import EmailValidate from "../../../src/GlobalFunctions/EmailValidation"
 function KarigarTable({setIsDisable}) {
   const [editedData, setEditedData] = useState({
-    id:null,
+    id: null,
     CODE: null,
     NAME: null,
     PHONE: null,
     ADDRESS: null,
     CONTACTPERSON: null,
-    MANAGER_CONTACT:null,
+    MANAGER_CONTACT: null,
     data: [],
     selectedValue: [],
   });
@@ -30,7 +30,16 @@ function KarigarTable({setIsDisable}) {
   });
 
   const { KarigarRegSuccess } = useAddArtisan();
-  const { isArtisanLoading, ArtisanList, fetchArtisanMaster } = useFetchArtisan();
+  const { isArtisanLoading, ArtisanList, fetchArtisanMaster } =
+    useFetchArtisan();
+
+    // console.log(filteredData,"artisanlist")
+    const [originalOrder, setOriginalOrder] = useState([]);
+
+
+   
+    console.log(originalOrder,"order")
+  
   const {
     ArtisanEditError,
     isArtisanEditLoading,
@@ -39,10 +48,10 @@ function KarigarTable({setIsDisable}) {
     ClearStateEditArtisan,
   } = useEditArtisan();
 
-  console.log(ArtisanList,"artisanlist")
+  //console.log(ArtisanList,"artisanlist")
 
   const { ItemList, isItemLoading } = useFetchItem();
-  
+
   const ItemListOption = useMemo(() => {
     return ItemList?.map((item) => ({
       label: `${item?.ITEMCODE}:${item?.DESCRIPTION}`,
@@ -50,9 +59,8 @@ function KarigarTable({setIsDisable}) {
     }));
   }, [isItemLoading, ItemList]);
 
-
   const Col = [
-    { headername: "Artisan Code", fieldname: "CODE", type: "String" },
+    { headername: "Karigar Code", fieldname: "CODE", type: "String" },
     { headername: "Name", fieldname: "NAME", type: "String" },
     { headername: "Contact No.", fieldname: "PHONE", type: "number" },
     { headername: "Email", fieldname: "ADDRESS", type: "String" },
@@ -62,7 +70,7 @@ function KarigarTable({setIsDisable}) {
       type: "String",
     },
     {
-      headername: "Manager Number",
+      headername: "Manager No",
       fieldname: "MANAGER_CONTACT",
       type: "number",
     },
@@ -77,18 +85,19 @@ function KarigarTable({setIsDisable}) {
       isSelection: true,
       options: ItemListOption,
       placeholder: "--Select Item--",
+      isShortingOff: true,
     },
   ];
 
   const HandleMultiSelection = (ids) => {
-    // console.log("in multi");
+    // //console.log("in multi");
     let array = ids?.map((item) => Number(item?.value));
     array = [...new Set(array)];
     setEditedData((prev) => ({ ...prev, data: array, selectedValue: ids }));
   };
 
   const ActionFunc = (tabIndex) => {
-    setIsDisable(true)
+    setIsDisable(true);
     setParams((prev) => ({ ...prev, IsAction: true, ActionID: tabIndex }));
     let arr = filteredData[tabIndex]?.data?.map((item) => item?.ItemId);
     let arr2 = filteredData[tabIndex]?.data?.map((item) => ({
@@ -102,13 +111,18 @@ function KarigarTable({setIsDisable}) {
       PHONE: filteredData[tabIndex]?.PHONE,
       ADDRESS: filteredData[tabIndex]?.ADDRESS,
       CONTACTPERSON: filteredData[tabIndex]?.CONTACTPERSON,
-      MANAGER_CONTACT:filteredData[tabIndex]?.MANAGER_CONTACT,
+      MANAGER_CONTACT: filteredData[tabIndex]?.MANAGER_CONTACT,
       data: arr,
       selectedValue: arr2,
     });
-    // console.log(editedData?.selectedValue)
+    // //console.log(editedData?.selectedValue)
   };
 
+  const applyFilter = (newFilteredData) => {
+    setFilteredData(newFilteredData);
+    // Store the current visible order
+    setOriginalOrder(newFilteredData.map((row) => row.id));
+  };
   const SortingFunc = (header, type) => {
     if (!filteredData || filteredData.length === 0) return;
 
@@ -125,26 +139,27 @@ function KarigarTable({setIsDisable}) {
     }
 
     setFilteredData(result);
+
+    applyFilter(result)
   };
 
   const OnChangeHandler = (index, e) => {
     let key = e.target.name;
     let value = e.target.value;
-    const data=filteredData[index]
-    console.log(data,editedData)
+    const data = filteredData[index];
+    //console.log(data,editedData)
     setEditedData({ ...editedData, [key]: value });
   };
 
   const SaveChange = () => {
-
-    if(!EmailValidate(editedData.ADDRESS)){
+    if (!EmailValidate(editedData.ADDRESS)) {
       toast.error("Invalid Email!", {
         position: "top-right",
         autoClose: 3000,
       });
       return;
     }
-    // console.log("Saving changes...", editedData);
+    // //console.log("Saving changes...", editedData);
     if (!/^\d{10}$/.test(editedData.PHONE)) {
       toast.error("Phone number must be exactly 10 digits!", {
         position: "top-right",
@@ -152,28 +167,29 @@ function KarigarTable({setIsDisable}) {
       });
       return;
     }
-  if (!PhnoValidation(editedData.PHONE)) {
-     toast.error("Invalid Phone Number!", {
-       position: "top-right",
-       autoClose: 3000,
-     });
-     return;
-  }
-  if (!/^\d{10}$/.test(editedData.MANAGER_CONTACT)) {
-    toast.error("Phone number must be exactly 10 digits!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-    return;
-  }
-if (!PhnoValidation(editedData.MANAGER_CONTACT)) {
-   toast.error("Invalid Phone Number!", {
-     position: "top-right",
-     autoClose: 3000,
-   });
-   return;
-}
+    if (!PhnoValidation(editedData.PHONE)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!/^\d{10}$/.test(editedData.MANAGER_CONTACT)) {
+      toast.error("Phone number must be exactly 10 digits!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!PhnoValidation(editedData.MANAGER_CONTACT)) {
+      toast.error("Invalid Phone Number!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     EditArtisanFunc(editedData);
+
   };
 
   useEffect(() => {
@@ -191,22 +207,20 @@ if (!PhnoValidation(editedData.MANAGER_CONTACT)) {
         position: "top-right",
         autoClose: 3000,
       });
-      setIsDisable(false)
+      setIsDisable(false);
       setParams({ ActionID: -1, IsAction: false });
       setEditedData({
-        id:null,
+        id: null,
         CODE: null,
         NAME: null,
         PHONE: null,
         ADDRESS: null,
         CONTACTPERSON: null,
-        MANAGER_CONTACT:null,
+        MANAGER_CONTACT: null,
         ITEMCODES: null,
         data: [],
         selectedValue: [],
       });
-
-    
     } else if (
       ArtisanEditError &&
       !isArtisanEditLoading &&
@@ -217,23 +231,48 @@ if (!PhnoValidation(editedData.MANAGER_CONTACT)) {
         autoClose: 3000,
       });
     }
-      ClearStateEditArtisan();
+    ClearStateEditArtisan();
   }, [isArtisanEditLoading, ArtisanEditSuccess, ArtisanEditError]);
 
   useEffect(() => {
     if (ArtisanList?.length > 0) {
-      const processedData = ArtisanList.map((artisan) => ({
+      let updatedData = ArtisanList.map((artisan) => ({
         ...artisan,
-          ITEMCODES:
-          artisan.data?.map((item) => item.ITEMCODE).join(", ") || "",
+        ITEMCODES: artisan.data?.map((item) => item.ITEMCODE).join(", ") || "",
       }));
-      setFilteredData(processedData);
+  
+      // Ensure the order remains the same
+      if (originalOrder.length > 0) {
+        updatedData = originalOrder
+          .map((id) => updatedData.find((row) => row.id === id))
+          .filter(Boolean);
+      }
+  
+      setFilteredData(updatedData);
     }
   }, [ArtisanList, isArtisanLoading]);
   
+  
+
   useEffect(() => {
     fetchArtisanMaster();
+  
+    if (originalOrder.length > 0 && ArtisanList?.length > 0) {
+      const sortedData = originalOrder
+        .map((id) => ArtisanList.find((row) => row.id === id))
+        .filter(Boolean);
+      
+      setFilteredData(sortedData);
+    }
   }, [ArtisanEditSuccess, KarigarRegSuccess]);
+  
+  
+
+  // useEffect(() => {
+  //   // Store the original order when the component first loads
+  //   setOriginalOrder(filter.map((row) => row.id));
+  // }, []);
+
 
   return (
     <div id="table-box" style={{ height: "50vh" }}>
